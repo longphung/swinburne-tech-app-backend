@@ -10,7 +10,7 @@ connect.then(() => {
 })
 
 // Create Schema
-const Loginschema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     name: {
         type:String,
         required: true
@@ -22,6 +22,6 @@ const Loginschema = new mongoose.Schema({
 });
 
 // collection part
-const collection = new mongoose.model("users", Loginschema);
+const collection = new mongoose.model("users", UserSchema);
 
 module.exports = collection;
