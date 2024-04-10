@@ -1,17 +1,15 @@
-import { config } from 'dotenv';
-import express from 'express';
+import express from "express";
+import loggerMiddleware from "./src/loggerMiddleware.js";
 
-config({
-  path: '.env.local'
-})
-
-const app = express()
+const app = express();
 const port = process.env.PORT;
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+app.use(loggerMiddleware);
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});
