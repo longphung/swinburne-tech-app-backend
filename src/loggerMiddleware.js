@@ -37,7 +37,7 @@ const loggerMiddleware = (req, res, next) => {
   console.time();
   const { method, url } = req;
 
-  logger.http(`${method} ${url}`);
+  logger.http(`${method} ${url} ${res.statusCode}`);
   logger.debug(`Headers: ${JSON.stringify(req.headers)}`);
   logger.debug(`Body: ${JSON.stringify(req.body)}`);
   logger.debug(`Query: ${JSON.stringify(req.query)}`);
