@@ -14,10 +14,20 @@
     "swinburne",
     "technology-application"
   ],
+  "type": "module",
   "author": "Phung Nguyen, Ritvik Thakur, Gauri Krishna, Bashini Dewage, Charles Ficarra",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/longphung/swinburne-tech-app-backend/issues"
   },
-  "homepage": "https://github.com/longphung/swinburne-tech-app-backend#readme"
+  "homepage": "https://github.com/longphung/swinburne-tech-app-backend#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "mongoose": "^8.3.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }
