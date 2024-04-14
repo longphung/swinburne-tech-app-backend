@@ -17,6 +17,12 @@
     "technology-application"
   ],
   "type": "module",
+  "imports": {
+    "#*": "./*",
+    "#src/*": "./src/*",
+    "#models/*": "./models/*",
+    "#routes/*": "./routes/*"
+  },
   "author": "Phung Nguyen, Ritvik Thakur, Gauri Krishna, Bashini Dewage, Charles Ficarra",
   "license": "Apache-2.0",
   "bugs": {

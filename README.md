@@ -29,6 +29,11 @@ cp .env.example .env
    - `DB_NAME`: The name of the MongoDB database
    - `DB_USER`: The username of the MongoDB database
    - `DB_PASS`: The password of the MongoDB database
+   - `SMTP_HOST`: The SMTP host for sending emails
+   - `SMTP_PORT`: The SMTP port for sending emails
+   - `SMTP_SECURE`: The SMTP secure connection for sending emails, 1 for true, 0 for false
+   - `SMTP_USER`: The SMTP username for sending emails
+   - `SMTP_PASS`: The SMTP password for sending emails
 
 6. Start the application:
 ```bash
