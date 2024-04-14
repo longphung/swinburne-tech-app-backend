@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema({
   address: String,
   phone: {
     type: String,
+    match: /[0-9]+/,
   },
   email:{
     type: String,
