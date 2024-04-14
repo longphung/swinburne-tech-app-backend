@@ -3,8 +3,8 @@ import loggerMiddleware from "./src/loggerMiddleware.js";
 import helmet from "helmet";
 
 const app = express();
-const port = process.env.PORT;
-// convert data into json format
+const port = process.env.PORT || 5000;
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -63,8 +63,6 @@ app.get("/", (req, res) => {
 // });
 
 
-// Define Port for Application
-const port = 5000;
 app.listen(port, () => {
   console.log(`🚀🚀🚀 TechAway Backend app listening on port ${port}! 🚀🚀🚀`);
 });
