@@ -25,7 +25,7 @@ cp .env.example .env
 5. Update the `.env.local` file with your configurations:
    - `PORT`: The port number where the application will run. Set 8000 for default
    - `LOG_LEVEL`: The level of logs you want to see (e.g., debug, info, warn, error). Set to 'info' for default, or 'debug' for more logs
-   - `DB-URI`: The URI of the MongoDB database
+   - `DB_URI`: The URI of the MongoDB database
    - `DB_NAME`: The name of the MongoDB database
    - `DB_USER`: The username of the MongoDB database
    - `DB_PASS`: The password of the MongoDB database
