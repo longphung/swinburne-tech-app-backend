@@ -33,7 +33,7 @@ if (process.env.NODE_ENV !== "production") {
  * @param {Response} res
  * @param next
  */
-const loggerMiddleware = (req, res, next) => {
+export const loggerMiddleware = (req, res, next) => {
   console.time();
   const { method, url } = req;
 
@@ -65,4 +65,4 @@ const loggerMiddleware = (req, res, next) => {
   next();
 };
 
-export default loggerMiddleware;
+export default logger;

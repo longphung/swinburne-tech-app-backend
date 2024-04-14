@@ -1,6 +1,19 @@
+import mongoose from 'mongoose'
 import express from "express";
-import loggerMiddleware from "./src/loggerMiddleware.js";
+import logger, { loggerMiddleware } from "./src/logger.js";
 import helmet from "helmet";
+
+// Connect to MongoDB
+mongoose.connect(process.env.DB_URI, {
+  dbName: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  pass: process.env.DB_PASS,
+}).then(() => {
+  logger.info("Database Connected Successfully")
+}).catch(() => {
+  logger.error("Database cannot be Connected")
+})
+
 
 const app = express();
 const port = process.env.PORT || 5000;
