@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    statics: {
+    methods: {
       async isValidPassword(password) {
         return await bcrypt.compare(password, this.password);
       },
@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.pre("save", async function () {
+userSchema.pre(["save", "updateOne", "findOneAndUpdate"], async function () {
   // Hash the password before saving the user model or updating the password
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
