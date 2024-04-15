@@ -12,9 +12,9 @@ export const USERS_ROLE = {
  *  username: string;
  *  password: string;
  *  role: string;
- *  name: string;
- *  address: string;
- *  phone: string;
+ *  name?: string;
+ *  address?: string;
+ *  phone?: string;
  *  email: string;
  *  emailVerified: boolean;
  *  createdAt: Date;

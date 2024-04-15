@@ -1,8 +1,8 @@
 import express from "express";
 import Joi from "joi";
 import logger from "../logger.js";
-import mailer from "#src/mailer.js";
 import { USERS_ROLE } from "#models/users.js";
+import { confirmEmail, signUp } from "#src/services/auth.js";
 
 const router = express.Router();
 
@@ -17,18 +17,51 @@ router.post("/signup", async (req, res) => {
      * and one special character
      */
     password: Joi.string()
-      .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/)
+      .min(8)
+      .pattern(/[A-Z]+/, "uppercase")
+      .pattern(/[a-z]+/, "lowercase")
+      .pattern(/[0-9]+/, "number")
+      .pattern(/[^A-Za-z0-9]+/, "special")
       .required(),
-    role: Joi.string().valid(USERS_ROLE.ADMIN, USERS_ROLE.CUSTOMER, USERS_ROLE.TECHNICIAN).required(),
-    name: Joi.string().required(),
+    // Only allow CUSTOMER and TECHNICIAN roles
+    role: Joi.string().valid(USERS_ROLE.CUSTOMER, USERS_ROLE.TECHNICIAN).required(),
+    name: Joi.string(),
     address: Joi.string(),
     phone: Joi.string().pattern(/[0-9]+/),
   });
+  const result = reqSchema.validate(req.body);
+  if (result.error) {
+    logger.error(result.error);
+    return res.status(400).send(result.error);
+  }
+  try {
+    const user = await signUp(req.body);
+    return res.status(201).send(user);
+  } catch (e) {
+    console.error(e);
+    logger.error(e.message);
+    return res.status(500).send("Internal server error");
+  }
 });
 
-router.post("/login", async (req, res) => {
+router.get("/confirm", async (req, res) => {
+  // If query param doesn't have token then return 400
+  if (!req.query.token) {
+    return res.status(400).send("Token is required");
+  }
+  try {
+    await confirmEmail(req.query.token);
+  } catch (e) {
+    logger.error(e.message);
+    return res.status(500).send("Internal server error");
+  }
+  // Redirect to login page of the React app
+  res.redirect("/login");
+});
+
+router.post("/login/password", async (req, res) => {
   logger.info("User login");
-  res.send("User login");
+  res.send(req.body);
 });
 
 export default router;

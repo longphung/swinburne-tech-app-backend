@@ -3,6 +3,7 @@ import express from "express";
 import logger, { loggerMiddleware } from "./src/logger.js";
 import helmet from "helmet";
 import auth from "./src/routes/auth.js";
+import rateLimiter from "#src/rate-limiter.js";
 
 // Connect to MongoDB
 mongoose
@@ -20,6 +21,8 @@ mongoose
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+app.use(rateLimiter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
