@@ -20,8 +20,8 @@
   "imports": {
     "#*": "./*",
     "#src/*": "./src/*",
-    "#models/*": "./models/*",
-    "#routes/*": "./routes/*"
+    "#models/*": "./src/models/*",
+    "#routes/*": "./src/routes/*"
   },
   "author": "Phung Nguyen, Ritvik Thakur, Gauri Krishna, Bashini Dewage, Charles Ficarra",
   "license": "Apache-2.0",
@@ -37,6 +37,8 @@
     "joi": "^17.12.3",
     "mongoose": "^8.3.1",
     "nodemailer": "^6.9.13",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
     "winston": "^3.13.0",
     "winston-daily-rotate-file": "^5.0.0"
   },

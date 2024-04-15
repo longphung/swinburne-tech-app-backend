@@ -20,7 +20,8 @@ npm install
 ```
 4. Copy the `.env.example` file and create a new `.env.local` file:
 ```bash
-cp .env.example .env
+# Local development
+cp .env.example .env.local
 ```
 5. Update the `.env.local` file with your configurations:
    - `PORT`: The port number where the application will run. Set 8000 for default
@@ -34,6 +35,7 @@ cp .env.example .env
    - `SMTP_SECURE`: The SMTP secure connection for sending emails, 1 for true, 0 for false
    - `SMTP_USER`: The SMTP username for sending emails
    - `SMTP_PASS`: The SMTP password for sending emails
+   - `SECRET_KEY`: The secret key for generating JWT tokens
 
 6. Start the application:
 ```bash

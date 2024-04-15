@@ -2,6 +2,7 @@ import express from "express";
 import Joi from "joi";
 import logger from "../logger.js";
 import mailer from "#src/mailer.js";
+import { USERS_ROLE } from "#models/users.js";
 
 const router = express.Router();
 
@@ -18,15 +19,11 @@ router.post("/signup", async (req, res) => {
     password: Joi.string()
       .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/)
       .required(),
+    role: Joi.string().valid(USERS_ROLE.ADMIN, USERS_ROLE.CUSTOMER, USERS_ROLE.TECHNICIAN).required(),
+    name: Joi.string().required(),
+    address: Joi.string(),
+    phone: Joi.string().pattern(/[0-9]+/),
   });
-  const result = await mailer.sendMail({
-    from: process.env.SMTP_USER,
-    to: req.body.email,
-    subject: "Welcome to TechAway",
-    html: "<h1>Welcome to TechAway</h1>",
-  });
-  logger.info(result);
-  res.send("User signup");
 });
 
 router.post("/login", async (req, res) => {

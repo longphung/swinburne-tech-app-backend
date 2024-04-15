@@ -38,13 +38,12 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    methods: {
-      async isValidPassword(password) {
-        return await bcrypt.compare(password, this.password);
-      },
-    },
   },
 );
+
+userSchema.methods.checkPassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 userSchema.pre(["save", "updateOne", "findOneAndUpdate"], async function () {
   // Hash the password before saving the user model or updating the password
