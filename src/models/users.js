@@ -7,6 +7,26 @@ export const USERS_ROLE = {
   CUSTOMER: "customer",
 };
 
+/**
+ * @typedef {{
+ *  username: string;
+ *  password: string;
+ *  role: string;
+ *  name: string;
+ *  address: string;
+ *  phone: string;
+ *  email: string;
+ *  emailVerified: boolean;
+ *  createdAt: Date;
+ *  updatedAt: Date;
+ *  checkPassword: (password: string) => Promise<boolean>;
+ *   }} User
+ */
+
+/**
+ *
+ * @type {Schema<User>}
+ */
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -34,6 +54,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       match: /^[\w-_.]+@([\w-]+\.)+[\w-]{2,4}$/,
       unique: true,
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   {
