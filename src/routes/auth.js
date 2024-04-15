@@ -38,8 +38,10 @@ router.post("/signup", async (req, res) => {
     const user = await signUp(req.body);
     return res.status(201).send(user);
   } catch (e) {
-    console.error(e);
     logger.error(e.message);
+    if (e.code === 11000) {
+      return res.status(400).send(e.message);
+    }
     return res.status(500).send("Internal server error");
   }
 });
@@ -50,13 +52,15 @@ router.get("/confirm", async (req, res) => {
     return res.status(400).send("Token is required");
   }
   try {
-    await confirmEmail(req.query.token);
+    const user = await confirmEmail(req.query.token);
+    // Redirect to login page of the React app
+    const redirectURL = new URL("/login", process.env.FRONTEND_URL)
+    redirectURL.searchParams.append("username", user.username);
+    return res.redirect(redirectURL.toString());
   } catch (e) {
     logger.error(e.message);
     return res.status(500).send("Internal server error");
   }
-  // Redirect to login page of the React app
-  res.redirect("/login");
 });
 
 router.post("/login/password", async (req, res) => {

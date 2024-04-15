@@ -107,13 +107,19 @@ export const signUp = async (userData) => {
 };
 
 export const confirmEmail = async (token) => {
-  const { userId } = await jose.jwtVerify(token, secret, {
+  const {
+    payload: { userId },
+  } = await jose.jwtVerify(token, secret, {
     issuer: APP_ISSUER,
   });
+  /**
+   * @type {User}
+   */
   const user = await User.findByIdAndUpdate(userId, { emailVerified: true });
   if (!user) {
     throw new Error("User not found");
   }
+  return user;
 };
 
 /**

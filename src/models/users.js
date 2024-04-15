@@ -24,8 +24,18 @@ export const USERS_ROLE = {
  */
 
 /**
+ * @typedef {{
+ *   checkPassword: (password: string) => Promise<boolean>;
+ * }} UserMethods
+ */
+
+/**
+ * @typedef {import("mongoose").Model<User, {}, UserMethods>} UserModel
+ */
+
+/**
  *
- * @type {Schema<User>}
+ * @type {Schema<User, UserModel, UserMethods>}
  */
 const userSchema = new mongoose.Schema(
   {
@@ -69,13 +79,23 @@ userSchema.methods.checkPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-userSchema.pre(["save", "updateOne", "findOneAndUpdate"], async function () {
-  // Hash the password before saving the user model or updating the password
-  if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-});
+userSchema.pre(
+  ["save", "updateOne", "findOneAndUpdate"],
+  {
+    document: true,
+    query: false,
+  },
+  async function () {
+    // Hash the password before saving the user model or updating the password
+    if (this.isModified("password")) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
+  },
+);
 
+/**
+ * @type {Model<User, UserModel>}
+ */
 const User = mongoose.model("User", userSchema);
 
 export default User;

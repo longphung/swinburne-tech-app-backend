@@ -1,23 +1,11 @@
-import mongoose from "mongoose";
 import express from "express";
-import logger, { loggerMiddleware } from "./src/logger.js";
+import { loggerMiddleware } from "./src/logger.js";
 import helmet from "helmet";
 import auth from "./src/routes/auth.js";
 import rateLimiter from "#src/rate-limiter.js";
+import { initDatabase } from "#db.js";
 
-// Connect to MongoDB
-mongoose
-  .connect(process.env.DB_URI, {
-    dbName: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    pass: process.env.DB_PASS,
-  })
-  .then(() => {
-    logger.info("Database Connected Successfully");
-  })
-  .catch(() => {
-    logger.error("Database cannot be Connected");
-  });
+await initDatabase();
 
 const app = express();
 const port = process.env.PORT || 5000;

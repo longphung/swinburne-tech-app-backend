@@ -11,25 +11,30 @@ let transporter = {
   },
 };
 
-if (process.env.NODE_ENV !== "production") {
-  logger.info("Creating test account for development environment nodemailer");
-  try {
-    const account = await nodemailer.createTestAccount();
-    logger.info("Test account created user:");
-    logger.info(account.user);
-    logger.info("Test account created pass:");
-    logger.info(account.pass);
-    transporter = {
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: account.user,
-        pass: account.pass,
-      },
-    };
-  } catch (e) {
-    logger.error("Error creating test account for development environment nodemailer", e);
+if (!transporter.auth.user || !transporter.auth.pass) {
+  if (process.env.NODE_ENV !== "production") {
+    logger.info("Creating test account for development environment nodemailer");
+    try {
+      const account = await nodemailer.createTestAccount();
+      logger.info("Test account created user:");
+      logger.info(account.user);
+      logger.info("Test account created pass:");
+      logger.info(account.pass);
+      transporter = {
+        host: "smtp.ethereal.email",
+        port: 587,
+        secure: false,
+        auth: {
+          user: account.user,
+          pass: account.pass,
+        },
+      };
+    } catch (e) {
+      logger.error("Error creating test account for development environment nodemailer", e);
+    }
+  } else {
+    logger.error("Production environment requires SMTP to be configured");
+    process.exit(1);
   }
 }
 
