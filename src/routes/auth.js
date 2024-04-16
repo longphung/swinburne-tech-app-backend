@@ -2,7 +2,8 @@ import express from "express";
 import Joi from "joi";
 import logger from "../logger.js";
 import { USERS_ROLE } from "#models/users.js";
-import { confirmEmail, signUp } from "#src/services/auth.js";
+import { confirmEmail, processLogin, signUp } from "#src/services/auth.js";
+import passport from "passport";
 
 const router = express.Router();
 
@@ -54,7 +55,7 @@ router.get("/confirm", async (req, res) => {
   try {
     const user = await confirmEmail(req.query.token);
     // Redirect to login page of the React app
-    const redirectURL = new URL("/login", process.env.FRONTEND_URL)
+    const redirectURL = new URL("/login", process.env.FRONTEND_URL);
     redirectURL.searchParams.append("username", user.username);
     return res.redirect(redirectURL.toString());
   } catch (e) {
@@ -63,9 +64,14 @@ router.get("/confirm", async (req, res) => {
   }
 });
 
-router.post("/login/password", async (req, res) => {
-  logger.info("User login");
-  res.send(req.body);
+router.post("/login/password", passport.authenticate("local", { session: false }), async (req, res) => {
+  try {
+    const tokens = await processLogin(req.user);
+    res.send(tokens);
+  } catch (e) {
+    logger.error(e.message);
+    return res.status(500).send("Internal server error");
+  }
 });
 
 export default router;

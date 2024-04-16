@@ -9,6 +9,7 @@ export const USERS_ROLE = {
 
 /**
  * @typedef {{
+ *  _id: mongoose.Schema.Types.ObjectId;
  *  username: string;
  *  password: string;
  *  role: string;

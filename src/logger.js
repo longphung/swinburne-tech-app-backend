@@ -44,7 +44,6 @@ if (process.env.NODE_ENV !== "production") {
  * @param next
  */
 export const loggerMiddleware = (req, res, next) => {
-  console.time();
   const { method, url } = req;
 
   logger.http(`${method} ${url} ${res.statusCode}`);

@@ -7,6 +7,7 @@ import mailer from "#src/mailer.js";
 import User from "#models/users.js";
 import { APP_ISSUER } from "#src/globals.js";
 import mongoose from "mongoose";
+import RefreshToken from "#models/refresh-token.js";
 
 const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 
@@ -23,6 +24,9 @@ passport.use(
       const isValidPassword = await user.checkPassword(password);
       if (!isValidPassword) {
         return done(null, false, { message: "Password is incorrect" });
+      }
+      if (!user.emailVerified) {
+        return done(null, false, { message: "Email not verified" });
       }
       return done(null, user);
     } catch (e) {
@@ -125,14 +129,17 @@ export const confirmEmail = async (token) => {
 /**
  * Issue ID Token, Access Token and Refresh Token
  * @param {User} userData
+ * @returns {Promise<{expiresIn: string, idToken: string, accessToken: string, refreshToken: string, refreshTokenExpiresIn: string }>}
  */
-export const issueToken = async (userData) => {
+export const issueTokens = async (userData) => {
   const { _id, password: _p, ...restUserData } = userData;
+  const expiresIn = "2h";
+  const refreshTokenExpiresIn = "14d";
 
   const idToken = await new jose.SignJWT({ userData: restUserData })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(APP_ISSUER)
-    .setExpirationTime("2h")
+    .setExpirationTime(expiresIn)
     .sign(secret);
 
   const accessToken = await new jose.SignJWT({
@@ -141,7 +148,7 @@ export const issueToken = async (userData) => {
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(APP_ISSUER)
-    .setExpirationTime("2h")
+    .setExpirationTime(expiresIn)
     .sign(secret);
 
   const refreshToken = await new jose.SignJWT({
@@ -149,8 +156,22 @@ export const issueToken = async (userData) => {
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(APP_ISSUER)
-    .setExpirationTime("14d")
+    .setExpirationTime(refreshTokenExpiresIn)
     .sign(secret);
   // TODO: consider encrypting the access and refresh token
-  return { idToken, accessToken, refreshToken };
+  return { idToken, accessToken, refreshToken, expiresIn, refreshTokenExpiresIn };
+};
+
+/**
+ * @param {User} userData
+ * @returns {Promise<ReturnType<typeof issueTokens>>}
+ */
+export const processLogin = async (userData) => {
+  const { refreshTokenExpiresIn: _r, ...tokens } = await issueTokens(userData);
+  const refreshToken = new RefreshToken({
+    token: tokens.refreshToken,
+    userId: userData._id,
+  });
+  await refreshToken.save();
+  return tokens;
 };
