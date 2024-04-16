@@ -1,8 +1,16 @@
 import winston from "winston";
 import "winston-daily-rotate-file";
+import fs from "fs";
+import path from "path";
+
+const logDir = "logs";
+// Create if not exists log directory
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
 
 const fileRotateTransport = new winston.transports.DailyRotateFile({
-  filename: "combined-%DATE%.log",
+  filename: path.join(logDir, "combined-%DATE%.log"),
   datePattern: "YYYY-MM-DD",
   maxFiles: "14d",
 });
@@ -11,8 +19,7 @@ const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || "info",
   format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   transports: [
-    new winston.transports.File({ filename: "error.log", level: "error" }),
-    new winston.transports.File({ filename: "combined.log" }),
+    new winston.transports.File({ filename: path.join(logDir, "error.log"), level: "error" }),
     fileRotateTransport,
   ],
 });
@@ -20,7 +27,10 @@ const logger = winston.createLogger({
 if (process.env.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
-      format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`),
+      ),
     }),
   );
 }
@@ -33,8 +43,7 @@ if (process.env.NODE_ENV !== "production") {
  * @param {Response} res
  * @param next
  */
-const loggerMiddleware = (req, res, next) => {
-  console.time();
+export const loggerMiddleware = (req, res, next) => {
   const { method, url } = req;
 
   logger.http(`${method} ${url} ${res.statusCode}`);
@@ -55,7 +64,7 @@ const loggerMiddleware = (req, res, next) => {
     if (restArgs[0]) {
       chunks.push(new Buffer(restArgs[0]));
     }
-    const body = Buffer.concat(chunks).toString('utf8');
+    const body = Buffer.concat(chunks).toString("utf8");
 
     logger.debug(`Response: ${body}`);
 
@@ -65,4 +74,4 @@ const loggerMiddleware = (req, res, next) => {
   next();
 };
 
-export default loggerMiddleware;
+export default logger;
