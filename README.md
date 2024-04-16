@@ -36,6 +36,8 @@ cp .env.example .env.local
    - `SMTP_USER`: The SMTP username for sending emails
    - `SMTP_PASS`: The SMTP password for sending emails
    - `SECRET_KEY`: The secret key for generating JWT tokens
+   - `APP_URL`: The URL of the backend application
+   - `FRONTEND_URL`: The URL of the frontend application
 
 6. Start the application:
 ```bash
@@ -46,15 +48,27 @@ npm run dev
 npm start
 ```
 
-## Project Structure
+- ## Project Structure
 
 - `index.js`: The entry point of the application.
-- `src/loggerMiddleware.js`: Contains the middleware for logging HTTP requests and responses.
-- `.env.example`: An example configuration file. You should create your own `.env` file based on this example.
+- `src/`: Contains the source code of the application.
+  - `models/`: Contains the data models for the application.
+  - `routes/`: Contains the routes for the application.
+- `package.json`: Contains the list of project dependencies and scripts.
+- `.env.example`: An example configuration file. You should create your own `.env.local` file based on this example.
+- `.env.local`: The configuration file for local development. This file is not tracked by Git.
 - `.gitignore`: Specifies intentionally untracked files that Git should ignore.
 
-## Contributing
+## FAQs
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+### Checking out emails in local development
 
+The first time you start the app in local development without an SMTP server, the app will create an account for you to Ethereal Email. You can use the credentials printed in the console to access the Ethereal Email account and view the emails sent by the application. Example Logs:
+```bash
+{"level":"info","message":"Creating test account for development environment nodemailer","timestamp":"2024-04-15T22:30:49.731Z"}
+{"level":"info","message":"Test account created user:","timestamp":"2024-04-15T22:30:51.535Z"}
+{"level":"info","message":👉"<ethereal-email>@etheral.email","timestamp":"2024-04-15T22:30:51.536Z"}
+{"level":"info","message":"Test account created pass:","timestamp":"2024-04-15T22:30:51.536Z"}
+{"level":"info","message":👉"<The given password>","timestamp":"2024-04-15T22:30:51.536Z"}
+```
 
