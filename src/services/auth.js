@@ -132,7 +132,7 @@ export const confirmEmail = async (token) => {
  * @returns {Promise<{expiresIn: string, idToken: string, accessToken: string, refreshToken: string, refreshTokenExpiresIn: string }>}
  */
 export const issueTokens = async (userData) => {
-  const { _id, password: _p, ...restUserData } = userData;
+  const { _id, password: _p, ...restUserData } = userData.toObject();
   const expiresIn = "2h";
   const refreshTokenExpiresIn = "14d";
 
