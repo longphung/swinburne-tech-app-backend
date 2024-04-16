@@ -40,7 +40,7 @@ router.post("/signup", async (req, res) => {
   const result = reqSchema.validate(req.body);
   if (result.error) {
     logger.error(result.error);
-    return res.status(400).send(result.error);
+    return res.status(400).send("Invalid request body");
   }
   try {
     const user = await signUp(req.body);
@@ -48,7 +48,7 @@ router.post("/signup", async (req, res) => {
   } catch (e) {
     logger.error(e.message);
     if (e.code === 11000) {
-      return res.status(400).send(e.message);
+      return res.status(400).send("Email already exists");
     }
     return res.status(500).send("Internal server error");
   }
@@ -153,7 +153,7 @@ router.post("/reset-password", async (req, res) => {
   const result = reqSchema.validate(req.body);
   if (result.error) {
     logger.error(result.error);
-    return res.status(400).send(result.error);
+    return res.status(400).send("Invalid request body");
   }
   try {
     const { token, password } = req.body;
