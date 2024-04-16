@@ -48,7 +48,7 @@ npm run dev
 npm start
 ```
 
-- ## Project Structure
+## Project Structure
 
 - `index.js`: The entry point of the application.
 - `src/`: Contains the source code of the application.
