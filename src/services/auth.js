@@ -158,20 +158,38 @@ export const issueTokens = async (userData) => {
     .setIssuer(APP_ISSUER)
     .setExpirationTime(refreshTokenExpiresIn)
     .sign(secret);
+  const refreshTokenDoc = new RefreshToken({
+    token: refreshToken,
+    userId: userData._id,
+  });
+  await refreshTokenDoc.save();
   // TODO: consider encrypting the access and refresh token
   return { idToken, accessToken, refreshToken, expiresIn, refreshTokenExpiresIn };
 };
 
-/**
- * @param {User} userData
- * @returns {Promise<ReturnType<typeof issueTokens>>}
- */
-export const processLogin = async (userData) => {
-  const { refreshTokenExpiresIn: _r, ...tokens } = await issueTokens(userData);
-  const refreshToken = new RefreshToken({
-    token: tokens.refreshToken,
-    userId: userData._id,
+export const refreshAccessToken = async (refreshToken) => {
+  const {
+    payload: { userId },
+  } = await jose.jwtVerify(refreshToken, secret, {
+    issuer: APP_ISSUER,
   });
-  await refreshToken.save();
-  return tokens;
+  // Check and invalidate the refresh token if the refresh token is valid
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const refreshTokenDoc = await RefreshToken.findOneAndUpdate(
+    { token: refreshToken },
+    {
+      invalid: true,
+    },
+  );
+  if (!refreshTokenDoc) {
+    throw new Error("Refresh token not found");
+  }
+  if (!refreshTokenDoc.isValid()) {
+    await RefreshToken.invalidateUser(userId);
+    throw new Error("Refresh token is already used");
+  }
+  return await issueTokens(user);
 };

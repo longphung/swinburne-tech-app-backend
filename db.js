@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import logger from "#src/logger.js";
 import Users from "#models/users.js";
+import RefreshToken from "#models/refresh-token.js";
 
 export const initDatabase = async () => {
   try {
@@ -10,9 +11,10 @@ export const initDatabase = async () => {
       user: process.env.DB_USER,
       pass: process.env.DB_PASS,
     });
-    logger.info("Database Connected Successfully");
     // Init collections
     await Users.init();
+    await RefreshToken.init();
+    logger.info("Database Connected Successfully");
   } catch (e) {
     logger.error(e.message);
     process.exit(1);

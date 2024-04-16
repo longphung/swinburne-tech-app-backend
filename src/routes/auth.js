@@ -2,7 +2,7 @@ import express from "express";
 import Joi from "joi";
 import logger from "../logger.js";
 import { USERS_ROLE } from "#models/users.js";
-import { confirmEmail, processLogin, signUp } from "#src/services/auth.js";
+import { confirmEmail, issueTokens, refreshAccessToken, signUp } from "#src/services/auth.js";
 import passport from "passport";
 
 const router = express.Router();
@@ -66,10 +66,53 @@ router.get("/confirm", async (req, res) => {
 
 router.post("/login/password", passport.authenticate("local", { session: false }), async (req, res) => {
   try {
-    const tokens = await processLogin(req.user);
+    const { refreshTokenExpiresIn: _rt, refreshToken, ...tokens } = await issueTokens(req.user);
+    // Set HTTPOnly cookie for refresh token
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      // 14 days
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+    });
     res.send(tokens);
   } catch (e) {
     logger.error(e.message);
+    if (e.message.includes('"exp" claim timestamp check failed')) {
+      // TODO: Redirect to resend confirmation email page
+      return res.status(401).send("Token expired");
+    }
+    return res.status(500).send("Internal server error");
+  }
+});
+
+router.post("/token", async (req, res) => {
+  try {
+    // Get the refresh token from the cookie
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(401).send("Refresh token is required");
+    }
+    const {
+      refreshToken: newRefreshToken,
+      refreshTokenExpiresIn: _rt,
+      ...tokens
+    } = await refreshAccessToken(refreshToken);
+    // Set HTTPOnly cookie for refresh token
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      // 14 days
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+    });
+    res.send(tokens);
+  } catch (e) {
+    logger.error(e.message);
+    if (e.message.includes('"exp" claim timestamp check failed')) {
+      return res.status(401).send("Token expired");
+    }
+    if (e.message === "Refresh token is already used") {
+      return res.status(401).send(e.message);
+    }
     return res.status(500).send("Internal server error");
   }
 });

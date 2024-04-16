@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 
 /**
  * @typedef {{
@@ -15,7 +14,7 @@ import bcrypt from "bcrypt";
 
 /**
  * @typedef {{
- * isValid: (token: string) => Promise<boolean>;
+ * isValid: (token: string) => boolean;
  * }} RefreshTokenMethods
  */
 
@@ -23,7 +22,7 @@ import bcrypt from "bcrypt";
  * interface extends mongoose.Model<RefreshToken, {}, RefreshTokenMethods>
  * @typedef {object} RefreshTokenModel
  * @extends mongoose.Model<RefreshToken, {}, RefreshTokenMethods>
- * @property {function(token: string): Promise<void>} invalidateUser
+ * @property {function(userId: string): Promise<void>} invalidateUser
  */
 
 /**
@@ -51,26 +50,18 @@ const refreshTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    static: {
-      async invalidateUser(token) {
+    statics: {
+      async invalidateUser(userId) {
         // Invalidate all refresh tokens for the user
-        await RefreshToken.deleteMany({ userId: token.userId });
-      },
-    },
-    methods: {
-      async isValid(token) {
-        return await bcrypt.compare(token, this.token);
+        await this.updateMany({ userId }, { invalid: true });
       },
     },
   },
 );
 
-refreshTokenSchema.pre(["save", "updateOne", "findOneAndUpdate"], async function () {
-  // Hash the token before saving the refresh token model or updating the token
-  if (this.isModified("token")) {
-    this.token = await bcrypt.hash(this.token, 10);
-  }
-});
+refreshTokenSchema.methods.isValid = function () {
+  return !this.invalid;
+};
 
 /**
  * @type {Model<RefreshToken, RefreshTokenModel>}
