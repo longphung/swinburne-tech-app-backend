@@ -2,7 +2,14 @@ import express from "express";
 import Joi from "joi";
 import logger from "../logger.js";
 import { USERS_ROLE } from "#models/users.js";
-import { confirmEmail, issueTokens, refreshAccessToken, signUp } from "#src/services/auth.js";
+import {
+  confirmEmail,
+  forgotPassword,
+  issueTokens,
+  refreshAccessToken,
+  resetPassword,
+  signUp,
+} from "#src/services/auth.js";
 import passport from "passport";
 
 const router = express.Router();
@@ -112,6 +119,55 @@ router.post("/token", async (req, res) => {
     }
     if (e.message === "Refresh token is already used") {
       return res.status(401).send(e.message);
+    }
+    return res.status(500).send("Internal server error");
+  }
+});
+
+router.get("/forgot-password", async (req, res) => {
+  // If query param doesn't have username then return 400
+  const { username } = req.query;
+  if (!username) {
+    return res.status(400).send("Username is required");
+  }
+  try {
+    await forgotPassword(username);
+    return res.status(200).send("Email sent");
+  } catch (e) {
+    logger.error(e.message);
+    return res.status(500).send("Internal server error");
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  const reqSchema = Joi.object({
+    password: Joi.string()
+      .min(8)
+      .pattern(/[A-Z]+/, "uppercase")
+      .pattern(/[a-z]+/, "lowercase")
+      .pattern(/[0-9]+/, "number")
+      .pattern(/[^A-Za-z0-9]+/, "special")
+      .required(),
+    token: Joi.string().required(),
+  });
+  const result = reqSchema.validate(req.body);
+  if (result.error) {
+    logger.error(result.error);
+    return res.status(400).send(result.error);
+  }
+  try {
+    const { token, password } = req.body;
+    const user = await resetPassword(token, password);
+    // Redirect to login page of the React app
+    const redirectURL = new URL("/login", process.env.FRONTEND_URL);
+    redirectURL.searchParams.append("username", user.username);
+    return res.redirect(redirectURL.toString());
+  } catch (e) {
+    console.error(e);
+    logger.error(e.message);
+    if (e.message.includes('"exp" claim timestamp check failed')) {
+      // TODO: Redirect to resend forgot password email page
+      return res.status(401).send("Token expired");
     }
     return res.status(500).send("Internal server error");
   }

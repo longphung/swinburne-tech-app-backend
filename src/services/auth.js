@@ -193,3 +193,49 @@ export const refreshAccessToken = async (refreshToken) => {
   }
   return await issueTokens(user);
 };
+
+/**
+ * Send an email with a link to reset the password
+ * @param {string} username
+ */
+export const forgotPassword = async (username) => {
+  const session = await mongoose.startSession();
+  await session.withTransaction(async () => {
+    const user = await User.findOne({ username });
+    console.log(user)
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const token = await new jose.SignJWT({ userId: user._id })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuer(APP_ISSUER)
+      .setExpirationTime("1h")
+      .sign(secret);
+    const url = new global.URL("/auth/reset-password", process.env.FRONTEND_URL);
+    url.searchParams.append("token", token);
+    await mailer.sendMail({
+      from: process.env.SMTP_USER,
+      to: user.email,
+      subject: "Reset Password",
+      html: `<h1>Reset Password</h1><p>Please reset your password by clicking on the following link: <a href="${url.toString()}">Reset Password</a></p>`,
+    });
+  });
+};
+
+export const resetPassword = async (token, newPassword) => {
+  const {
+    payload: { userId },
+  } = await jose.jwtVerify(token, secret, {
+    issuer: APP_ISSUER,
+  });
+  const user = await User.findOneAndUpdate(
+    { _id: userId },
+    {
+      password: newPassword,
+    },
+  );
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
+};
