@@ -63,7 +63,7 @@ npm start
 
 ### Checking out emails in local development
 
-The first time you start the app in local development without an SMTP server, the app will create an account for you to Ethereal Email. You can use the credentials printed in the console to access the Ethereal Email account and view the emails sent by the application. Example Logs:
+The first time you start the app in local development without an SMTP server, the app will create an account for you to [Ethereal Email](https://ethereal.email/). You can use the credentials printed in the console to access the Ethereal Email account and view the emails sent by the application. Example Logs:
 ```bash
 {"level":"info","message":"Creating test account for development environment nodemailer","timestamp":"2024-04-15T22:30:49.731Z"}
 {"level":"info","message":"Test account created user:","timestamp":"2024-04-15T22:30:51.535Z"}
