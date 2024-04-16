@@ -73,14 +73,7 @@ router.get("/confirm", async (req, res) => {
 
 router.post("/login/password", passport.authenticate("local", { session: false }), async (req, res) => {
   try {
-    const { refreshTokenExpiresIn: _rt, refreshToken, ...tokens } = await issueTokens(req.user);
-    // Set HTTPOnly cookie for refresh token
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      // 14 days
-      maxAge: 14 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
-    });
+    const { refreshTokenExpiresIn: _rt, ...tokens } = await issueTokens(req.user);
     res.send(tokens);
   } catch (e) {
     logger.error(e.message);
@@ -94,23 +87,15 @@ router.post("/login/password", passport.authenticate("local", { session: false }
 
 router.post("/token", async (req, res) => {
   try {
-    // Get the refresh token from the cookie
-    const refreshToken = req.cookies.refreshToken;
+    // Get the refresh token from the body
+    const refreshToken = req.body.refreshToken;
     if (!refreshToken) {
       return res.status(401).send("Refresh token is required");
     }
     const {
-      refreshToken: newRefreshToken,
       refreshTokenExpiresIn: _rt,
       ...tokens
     } = await refreshAccessToken(refreshToken);
-    // Set HTTPOnly cookie for refresh token
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      // 14 days
-      maxAge: 14 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
-    });
     res.send(tokens);
   } catch (e) {
     logger.error(e.message);

@@ -1,5 +1,4 @@
 import express from "express";
-import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
 
@@ -19,7 +18,6 @@ app.use(
     origin: [process.env.APP_URL, process.env.FRONTEND_URL],
   }),
 );
-app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
