@@ -81,7 +81,7 @@ userSchema.methods.checkPassword = async function (password) {
 };
 
 userSchema.pre(
-  ["save", "updateOne", "findOneAndUpdate"],
+  ["save", "updateOne"],
   {
     document: true,
     query: false,
@@ -93,6 +93,16 @@ userSchema.pre(
     }
   },
 );
+
+userSchema.pre("findOneAndUpdate", async function () {
+  const update = this.getUpdate();
+  if (!update.password) return;
+  // Hash the password before updating the user model
+  const hashedPassword = await bcrypt.hash(update.password, 10);
+  this.setUpdate({
+    password: hashedPassword,
+  });
+});
 
 /**
  * @type {Model<User, UserModel>}

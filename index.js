@@ -1,6 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
+import cors from "cors";
 
 import { loggerMiddleware } from "./src/logger.js";
 import auth from "./src/routes/auth.js";
@@ -13,7 +14,12 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(rateLimiter);
-app.use(cookieParser())
+app.use(
+  cors({
+    origin: process.env.APP_URL,
+  }),
+);
+app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

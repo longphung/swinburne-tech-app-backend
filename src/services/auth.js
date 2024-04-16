@@ -202,7 +202,6 @@ export const forgotPassword = async (username) => {
   const session = await mongoose.startSession();
   await session.withTransaction(async () => {
     const user = await User.findOne({ username });
-    console.log(user)
     if (!user) {
       throw new Error("User not found");
     }
