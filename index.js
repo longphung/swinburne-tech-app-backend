@@ -16,17 +16,19 @@ const port = process.env.PORT || 5000;
 app.use(rateLimiter);
 app.use(
   cors({
-    origin: process.env.APP_URL,
+    origin: [process.env.APP_URL, process.env.FRONTEND_URL],
   }),
 );
 app.use(cookieParser());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(helmet());
 app.use(loggerMiddleware);
 
+app.get("/healthcheck", (req, res) => {
+  return res.status(204).send("Ok");
+});
 app.use("/auth", auth);
 
 app.listen(port, () => {
