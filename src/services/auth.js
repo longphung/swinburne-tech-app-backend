@@ -285,3 +285,12 @@ export const resetPassword = async (token, newPassword) => {
   }
   return user;
 };
+
+export const invalidateToken = async (token) => {
+  const {
+    payload: { userId },
+  } = await jose.jwtVerify(token, secret, {
+    issuer: APP_ISSUER,
+  });
+  await RefreshToken.invalidateUser(userId);
+}

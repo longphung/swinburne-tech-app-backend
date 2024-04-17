@@ -88,7 +88,7 @@ router.post("/login/password", passport.authenticate("local", { session: false }
 router.post("/token", async (req, res) => {
   try {
     // Get the refresh token from the body
-    const refreshToken = req.body.refreshToken;
+    const { refreshToken } = req.body;
     if (!refreshToken) {
       return res.status(401).send("Refresh token is required");
     }
@@ -102,6 +102,20 @@ router.post("/token", async (req, res) => {
     if (e.message === "Refresh token is already used") {
       return res.status(401).send(e.message);
     }
+    return res.status(500).send("Internal server error");
+  }
+});
+
+router.put("token", async (req, res) => {
+  try {
+    // Get the refresh token from the body
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(401).send("Refresh token is required");
+    }
+    return res.send({ status: "success" });
+  } catch (e) {
+    logger.error(e.message);
     return res.status(500).send("Internal server error");
   }
 });
