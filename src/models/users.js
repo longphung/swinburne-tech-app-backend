@@ -50,8 +50,10 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     role: {
-      type: String,
-      enum: [USERS_ROLE.ADMIN, USERS_ROLE.TECHNICIAN, USERS_ROLE.CUSTOMER],
+      type: [{
+        type: String,
+        enum: Object.values(USERS_ROLE),
+      }],
       required: true,
     },
     name: String,
@@ -63,7 +65,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      match: /^[\w-_.]+@([\w-]+\.)+[\w-]{2,4}$/,
+      match: /^[\w-_.]+(\+\w+)*@([\w-]+\.)+[\w-]{2,4}$/,
       unique: true,
     },
     emailVerified: {

@@ -16,7 +16,10 @@ const router = express.Router();
 
 router.post("/signup", async (req, res) => {
   const reqSchema = Joi.object({
-    email: Joi.string().email().required(),
+    username: Joi.string().required(),
+    email: Joi.string()
+      .pattern(/^[\w-.]+(\+\w+)*@([\w-]+\.)+[\w-]{2,4}$/)
+      .required(),
     /**
      * Password must be at least 8 characters long
      * and contain at least one uppercase letter,
@@ -43,8 +46,8 @@ router.post("/signup", async (req, res) => {
     return res.status(400).send("Invalid request body");
   }
   try {
-    const user = await signUp(req.body);
-    return res.status(201).send(user);
+    const userId = await signUp(req.body);
+    return res.status(201).send({ userId });
   } catch (e) {
     logger.error(e.message);
     if (e.code === 11000) {
@@ -62,7 +65,7 @@ router.get("/confirm", async (req, res) => {
   try {
     const user = await confirmEmail(req.query.token);
     // Redirect to login page of the React app
-    const redirectURL = new URL("/login", process.env.FRONTEND_URL);
+    const redirectURL = new URL("/dashboard/login", process.env.FRONTEND_URL);
     redirectURL.searchParams.append("username", user.username);
     return res.redirect(redirectURL.toString());
   } catch (e) {
@@ -88,14 +91,11 @@ router.post("/login/password", passport.authenticate("local", { session: false }
 router.post("/token", async (req, res) => {
   try {
     // Get the refresh token from the body
-    const refreshToken = req.body.refreshToken;
+    const { refreshToken } = req.body;
     if (!refreshToken) {
       return res.status(401).send("Refresh token is required");
     }
-    const {
-      refreshTokenExpiresIn: _rt,
-      ...tokens
-    } = await refreshAccessToken(refreshToken);
+    const { refreshTokenExpiresIn: _rt, ...tokens } = await refreshAccessToken(refreshToken);
     res.send(tokens);
   } catch (e) {
     logger.error(e.message);
@@ -105,6 +105,20 @@ router.post("/token", async (req, res) => {
     if (e.message === "Refresh token is already used") {
       return res.status(401).send(e.message);
     }
+    return res.status(500).send("Internal server error");
+  }
+});
+
+router.put("token", async (req, res) => {
+  try {
+    // Get the refresh token from the body
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(401).send("Refresh token is required");
+    }
+    return res.send({ status: "success" });
+  } catch (e) {
+    logger.error(e.message);
     return res.status(500).send("Internal server error");
   }
 });
