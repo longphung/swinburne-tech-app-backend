@@ -2,12 +2,14 @@ import passport from "passport";
 import * as jose from "jose";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as BearerStrategy } from "passport-http-bearer";
+import { Strategy as CustomStrategy } from "passport-custom";
 
 import mailer from "#src/mailer.js";
-import User from "#models/users.js";
+import User, { USERS_ROLE } from "#models/users.js";
 import { APP_ISSUER } from "#src/globals.js";
 import mongoose from "mongoose";
 import RefreshToken from "#models/refresh-token.js";
+import logger from "#src/logger.js";
 
 const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 
@@ -49,6 +51,51 @@ passport.use(
   }),
 );
 
+passport.use(
+  "is-customer",
+  new CustomStrategy(async (req, done) => {
+    if (!req.user) {
+      // Throw errors so developers would not use this without checking if the user is authenticated
+      logger.error("Using is-customer middleware without checking if the user is authenticated is not allowed.");
+      process.exit(1);
+    }
+    if (req.user.role.includes(USERS_ROLE.CUSTOMER)) {
+      return done(null, req.user);
+    }
+    return done(null, false);
+  }),
+);
+
+passport.use(
+  "is-technician",
+  new CustomStrategy(async (req, done) => {
+    if (!req.user) {
+      // Throw errors so developers would not use this without checking if the user is authenticated
+      logger.error("Using is-technician middleware without checking if the user is authenticated is not allowed.");
+      process.exit(1);
+    }
+    if (req.user.role.includes(USERS_ROLE.TECHNICIAN)) {
+      return done(null, req.user);
+    }
+    return done(null, false);
+  }),
+);
+
+passport.use(
+  "is-admin",
+  new CustomStrategy(async (req, done) => {
+    if (!req.user) {
+      // Throw errors so developers would not use this without checking if the user is authenticated
+      logger.error("Using is-admin middleware without checking if the user is authenticated is not allowed.");
+      process.exit(1);
+    }
+    if (req.user.role.includes(USERS_ROLE.ADMIN)) {
+      return done(null, req.user);
+    }
+    return done(null, false);
+  }),
+);
+
 /**
  * Process user signup:
  * - Save user to db
@@ -57,12 +104,12 @@ passport.use(
  * @param {{
  *   email: string,
  *   password: string,
- *   role: string,
+ *   role: USERS_ROLE.TECHNICIAN | USERS_ROLE.CUSTOMER,
  *   name: string,
  *   address: string,
  *   phone: string,
  * }} userData
- * @returns {Promise<void>}
+ * @returns {Promise<Schema.Types.ObjectId>}
  */
 export const signUp = async (userData) => {
   const session = await mongoose.startSession();
@@ -72,7 +119,7 @@ export const signUp = async (userData) => {
     const user = new User({
       username: userData.email,
       password: userData.password,
-      role: userData.role,
+      role: [userData.role],
       name: userData.name,
       address: userData.address,
       phone: userData.phone,
@@ -101,7 +148,7 @@ export const signUp = async (userData) => {
 
     await session.commitTransaction();
 
-    return user;
+    return user._id;
   } catch (e) {
     await session.abortTransaction();
     throw e;

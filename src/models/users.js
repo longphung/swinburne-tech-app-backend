@@ -50,8 +50,10 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     role: {
-      type: String,
-      enum: [USERS_ROLE.ADMIN, USERS_ROLE.TECHNICIAN, USERS_ROLE.CUSTOMER],
+      type: [{
+        type: String,
+        enum: Object.values(USERS_ROLE),
+      }],
       required: true,
     },
     name: String,

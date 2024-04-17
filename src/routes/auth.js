@@ -43,8 +43,8 @@ router.post("/signup", async (req, res) => {
     return res.status(400).send("Invalid request body");
   }
   try {
-    const user = await signUp(req.body);
-    return res.status(201).send(user);
+    const userId = await signUp(req.body);
+    return res.status(201).send({ userId });
   } catch (e) {
     logger.error(e.message);
     if (e.code === 11000) {
@@ -92,10 +92,7 @@ router.post("/token", async (req, res) => {
     if (!refreshToken) {
       return res.status(401).send("Refresh token is required");
     }
-    const {
-      refreshTokenExpiresIn: _rt,
-      ...tokens
-    } = await refreshAccessToken(refreshToken);
+    const { refreshTokenExpiresIn: _rt, ...tokens } = await refreshAccessToken(refreshToken);
     res.send(tokens);
   } catch (e) {
     logger.error(e.message);
