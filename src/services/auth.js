@@ -102,6 +102,7 @@ passport.use(
  * - Generate confirmation email and url
  * - Send confirmation email
  * @param {{
+ *   username: string,
  *   email: string,
  *   password: string,
  *   role: USERS_ROLE.TECHNICIAN | USERS_ROLE.CUSTOMER,
@@ -117,7 +118,7 @@ export const signUp = async (userData) => {
   try {
     // Save the user to the database
     const user = new User({
-      username: userData.email,
+      username: userData.username,
       password: userData.password,
       role: [userData.role],
       name: userData.name,

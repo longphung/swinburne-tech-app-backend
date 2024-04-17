@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      match: /^[\w-_.]+@([\w-]+\.)+[\w-]{2,4}$/,
+      match: /^[\w-_.]+(\+\w+)*@([\w-]+\.)+[\w-]{2,4}$/,
       unique: true,
     },
     emailVerified: {

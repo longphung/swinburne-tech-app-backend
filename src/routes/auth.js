@@ -16,7 +16,10 @@ const router = express.Router();
 
 router.post("/signup", async (req, res) => {
   const reqSchema = Joi.object({
-    email: Joi.string().email().required(),
+    username: Joi.string().required(),
+    email: Joi.string()
+      .pattern(/^[\w-.]+(\+\w+)*@([\w-]+\.)+[\w-]{2,4}$/)
+      .required(),
     /**
      * Password must be at least 8 characters long
      * and contain at least one uppercase letter,
@@ -62,7 +65,7 @@ router.get("/confirm", async (req, res) => {
   try {
     const user = await confirmEmail(req.query.token);
     // Redirect to login page of the React app
-    const redirectURL = new URL("/login", process.env.FRONTEND_URL);
+    const redirectURL = new URL("/dashboard/login", process.env.FRONTEND_URL);
     redirectURL.searchParams.append("username", user.username);
     return res.redirect(redirectURL.toString());
   } catch (e) {
