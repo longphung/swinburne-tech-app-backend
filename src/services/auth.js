@@ -27,9 +27,6 @@ passport.use(
       if (!isValidPassword) {
         return done(null, false, { message: "Password is incorrect" });
       }
-      if (!user.emailVerified) {
-        return done(null, false, { message: "Email not verified" });
-      }
       return done(null, user);
     } catch (e) {
       done(e);
@@ -95,6 +92,18 @@ passport.use(
     return done(null, false);
   }),
 );
+
+/**
+ * @param {User} userData
+ * @returns {Promise<Omit<{expiresIn: string, idToken: string, accessToken: string, refreshToken: string, refreshTokenExpiresIn: string}, "refreshTokenExpiresIn">>}
+ */
+export const login = async (userData) => {
+  if (!userData.emailVerified) {
+    throw new Error("Email not verified");
+  }
+  const { refreshTokenExpiresIn: _rt, ...tokens } = await issueTokens(userData);
+  return tokens;
+};
 
 /**
  * Process user signup:
@@ -294,4 +303,4 @@ export const invalidateToken = async (token) => {
     issuer: APP_ISSUER,
   });
   await RefreshToken.invalidateUser(userId);
-}
+};

@@ -5,7 +5,7 @@ import { USERS_ROLE } from "#models/users.js";
 import {
   confirmEmail,
   forgotPassword,
-  issueTokens,
+  login,
   refreshAccessToken,
   resetPassword,
   signUp,
@@ -76,13 +76,16 @@ router.get("/confirm", async (req, res) => {
 
 router.post("/login/password", passport.authenticate("local", { session: false }), async (req, res) => {
   try {
-    const { refreshTokenExpiresIn: _rt, ...tokens } = await issueTokens(req.user);
+    const tokens = await login(req.user);
     res.send(tokens);
   } catch (e) {
     logger.error(e.message);
     if (e.message.includes('"exp" claim timestamp check failed')) {
       // TODO: Redirect to resend confirmation email page
       return res.status(401).send("Token expired");
+    }
+    if (e.message === "Email not verified") {
+      return res.status(401).send("Email not verified");
     }
     return res.status(500).send("Internal server error");
   }
