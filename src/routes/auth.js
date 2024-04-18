@@ -80,7 +80,7 @@ router.get("/confirm", async (req, res) => {
   try {
     const user = await confirmEmail(req.query.token);
     // Redirect to login page of the React app
-    const redirectURL = new URL("/dashboard/login", process.env.FRONTEND_URL);
+    const redirectURL = new URL("/login", process.env.FRONTEND_URL);
     redirectURL.searchParams.append("username", user.username);
     return res.redirect(redirectURL.toString());
   } catch (e) {
@@ -141,9 +141,8 @@ router.put("/token", async (req, res) => {
   }
 });
 
-router.get("/forgot-password", async (req, res) => {
-  // If query param doesn't have username then return 400
-  const { username } = req.query;
+router.post("/forgot-password", async (req, res) => {
+  const { username } = req.body;
   if (!username) {
     return res.status(400).send("Username is required");
   }
@@ -175,10 +174,7 @@ router.post("/reset-password", async (req, res) => {
   try {
     const { token, password } = req.body;
     const user = await resetPassword(token, password);
-    // Redirect to login page of the React app
-    const redirectURL = new URL("/login", process.env.FRONTEND_URL);
-    redirectURL.searchParams.append("username", user.username);
-    return res.redirect(redirectURL.toString());
+    return res.status(200).send({ username: user.username });
   } catch (e) {
     console.error(e);
     logger.error(e.message);

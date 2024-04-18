@@ -287,7 +287,7 @@ export const forgotPassword = async (username) => {
       .setIssuer(APP_ISSUER)
       .setExpirationTime("1h")
       .sign(secret);
-    const url = new global.URL("/auth/reset-password", process.env.FRONTEND_URL);
+    const url = new global.URL("/update-password", process.env.FRONTEND_URL);
     url.searchParams.append("token", token);
     await mailer.sendMail({
       from: process.env.SMTP_USER,

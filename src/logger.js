@@ -47,28 +47,6 @@ export const loggerMiddleware = (req, res, next) => {
   const { method, url } = req;
 
   logger.http(`${method} ${url} ${res.statusCode}`);
-  logger.debug(`Body: ${JSON.stringify(req.body)}`);
-  logger.debug(`Query: ${JSON.stringify(req.query)}`);
-
-  const defaultWrite = res.write;
-  const defaultEnd = res.end;
-  const chunks = [];
-
-  res.write = (...restArgs) => {
-    chunks.push(new Buffer(restArgs[0]));
-    defaultWrite.apply(res, restArgs);
-  };
-
-  res.end = (...restArgs) => {
-    if (restArgs[0]) {
-      chunks.push(new Buffer(restArgs[0]));
-    }
-    const body = Buffer.concat(chunks).toString("utf8");
-
-    logger.debug(`Response: ${body}`);
-
-    defaultEnd.apply(res, restArgs);
-  };
 
   next();
 };
