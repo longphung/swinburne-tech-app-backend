@@ -4,6 +4,8 @@
   "description": "Swinburne Technology Application backend",
   "main": "index.js",
   "scripts": {
+    "dev": "dotenvx run --env-file=.env.local -- nodemon index.js",
+    "start": "dotenvx run -- node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -14,10 +16,45 @@
     "swinburne",
     "technology-application"
   ],
+  "type": "module",
+  "imports": {
+    "#*": "./*",
+    "#src/*": "./src/*",
+    "#models/*": "./src/models/*",
+    "#routes/*": "./src/routes/*"
+  },
   "author": "Phung Nguyen, Ritvik Thakur, Gauri Krishna, Bashini Dewage, Charles Ficarra",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/longphung/swinburne-tech-app-backend/issues"
   },
-  "homepage": "https://github.com/longphung/swinburne-tech-app-backend#readme"
+  "homepage": "https://github.com/longphung/swinburne-tech-app-backend#readme",
+  "dependencies": {
+    "@dotenvx/dotenvx": "^0.32.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "joi": "^17.12.3",
+    "jose": "^5.2.4",
+    "mongoose": "^8.3.1",
+    "nodemailer": "^6.9.13",
+    "passport": "^0.7.0",
+    "passport-custom": "^1.1.1",
+    "passport-http-bearer": "^1.0.1",
+    "passport-local": "^1.0.0",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "nodemon": "^3.1.0",
+    "prettier": "3.2.5"
+  }
 }
