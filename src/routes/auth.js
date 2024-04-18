@@ -5,8 +5,10 @@ import { USERS_ROLE } from "#models/users.js";
 import {
   confirmEmail,
   forgotPassword,
-  issueTokens,
+  invalidateToken,
+  login,
   refreshAccessToken,
+  resendConfirmationEmail,
   resetPassword,
   signUp,
 } from "#src/services/auth.js";
@@ -57,6 +59,20 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+router.post("/resend-confirmation-email", async (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).send("Username is required");
+  }
+  try {
+    await resendConfirmationEmail(username);
+    return res.status(200).send("Email sent");
+  } catch (e) {
+    logger.error(e.message);
+    return res.status(500).send("Internal server error");
+  }
+});
+
 router.get("/confirm", async (req, res) => {
   // If query param doesn't have token then return 400
   if (!req.query.token) {
@@ -65,7 +81,7 @@ router.get("/confirm", async (req, res) => {
   try {
     const user = await confirmEmail(req.query.token);
     // Redirect to login page of the React app
-    const redirectURL = new URL("/dashboard/login", process.env.FRONTEND_URL);
+    const redirectURL = new URL("/login", process.env.FRONTEND_URL);
     redirectURL.searchParams.append("username", user.username);
     return res.redirect(redirectURL.toString());
   } catch (e) {
@@ -76,13 +92,16 @@ router.get("/confirm", async (req, res) => {
 
 router.post("/login/password", passport.authenticate("local", { session: false }), async (req, res) => {
   try {
-    const { refreshTokenExpiresIn: _rt, ...tokens } = await issueTokens(req.user);
+    const tokens = await login(req.user);
     res.send(tokens);
   } catch (e) {
     logger.error(e.message);
     if (e.message.includes('"exp" claim timestamp check failed')) {
       // TODO: Redirect to resend confirmation email page
       return res.status(401).send("Token expired");
+    }
+    if (e.message === "Email not verified") {
+      return res.status(401).send("Email not verified");
     }
     return res.status(500).send("Internal server error");
   }
@@ -109,13 +128,14 @@ router.post("/token", async (req, res) => {
   }
 });
 
-router.put("token", async (req, res) => {
+router.put("/token", async (req, res) => {
   try {
     // Get the refresh token from the body
     const { refreshToken } = req.body;
     if (!refreshToken) {
       return res.status(401).send("Refresh token is required");
     }
+    await invalidateToken(refreshToken);
     return res.send({ status: "success" });
   } catch (e) {
     logger.error(e.message);
@@ -123,9 +143,8 @@ router.put("token", async (req, res) => {
   }
 });
 
-router.get("/forgot-password", async (req, res) => {
-  // If query param doesn't have username then return 400
-  const { username } = req.query;
+router.post("/forgot-password", async (req, res) => {
+  const { username } = req.body;
   if (!username) {
     return res.status(400).send("Username is required");
   }
@@ -157,10 +176,7 @@ router.post("/reset-password", async (req, res) => {
   try {
     const { token, password } = req.body;
     const user = await resetPassword(token, password);
-    // Redirect to login page of the React app
-    const redirectURL = new URL("/login", process.env.FRONTEND_URL);
-    redirectURL.searchParams.append("username", user.username);
-    return res.redirect(redirectURL.toString());
+    return res.status(200).send({ username: user.username });
   } catch (e) {
     console.error(e);
     logger.error(e.message);

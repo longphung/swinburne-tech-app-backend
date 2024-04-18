@@ -27,9 +27,6 @@ passport.use(
       if (!isValidPassword) {
         return done(null, false, { message: "Password is incorrect" });
       }
-      if (!user.emailVerified) {
-        return done(null, false, { message: "Email not verified" });
-      }
       return done(null, user);
     } catch (e) {
       done(e);
@@ -97,6 +94,18 @@ passport.use(
 );
 
 /**
+ * @param {User} userData
+ * @returns {Promise<Omit<{expiresIn: string, idToken: string, accessToken: string, refreshToken: string, refreshTokenExpiresIn: string}, "refreshTokenExpiresIn">>}
+ */
+export const login = async (userData) => {
+  if (!userData.emailVerified) {
+    throw new Error("Email not verified");
+  }
+  const { refreshTokenExpiresIn: _rt, ...tokens } = await issueTokens(userData);
+  return tokens;
+};
+
+/**
  * Process user signup:
  * - Save user to db
  * - Generate confirmation email and url
@@ -157,6 +166,26 @@ export const signUp = async (userData) => {
     await session.endSession();
   }
 };
+
+export const resendConfirmationEmail = async (username) => {
+  const user = await User.findOne({ username });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const token = await new jose.SignJWT({ userId: user._id })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(APP_ISSUER)
+    .setExpirationTime("1h")
+    .sign(secret);
+  const url = new global.URL("/auth/confirm", process.env.APP_URL);
+  url.searchParams.append("token", token);
+  await mailer.sendMail({
+    from: process.env.SMTP_USER,
+    to: user.email,
+    subject: "Confirm Email",
+    html: `<h1>Confirm Email</h1><p>Please confirm your email by clicking on the following link: <a href="${url.toString()}">Confirm Email</a></p>`,
+  });
+}
 
 export const confirmEmail = async (token) => {
   const {
@@ -258,7 +287,7 @@ export const forgotPassword = async (username) => {
       .setIssuer(APP_ISSUER)
       .setExpirationTime("1h")
       .sign(secret);
-    const url = new global.URL("/auth/reset-password", process.env.FRONTEND_URL);
+    const url = new global.URL("/update-password", process.env.FRONTEND_URL);
     url.searchParams.append("token", token);
     await mailer.sendMail({
       from: process.env.SMTP_USER,
@@ -294,4 +323,4 @@ export const invalidateToken = async (token) => {
     issuer: APP_ISSUER,
   });
   await RefreshToken.invalidateUser(userId);
-}
+};
