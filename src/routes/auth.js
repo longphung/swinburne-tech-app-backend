@@ -5,6 +5,7 @@ import { USERS_ROLE } from "#models/users.js";
 import {
   confirmEmail,
   forgotPassword,
+  invalidateToken,
   login,
   refreshAccessToken,
   resendConfirmationEmail,
@@ -134,6 +135,7 @@ router.put("/token", async (req, res) => {
     if (!refreshToken) {
       return res.status(401).send("Refresh token is required");
     }
+    await invalidateToken(refreshToken);
     return res.send({ status: "success" });
   } catch (e) {
     logger.error(e.message);
