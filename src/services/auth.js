@@ -167,6 +167,26 @@ export const signUp = async (userData) => {
   }
 };
 
+export const resendConfirmationEmail = async (username) => {
+  const user = await User.findOne({ username });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const token = await new jose.SignJWT({ userId: user._id })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(APP_ISSUER)
+    .setExpirationTime("1h")
+    .sign(secret);
+  const url = new global.URL("/auth/confirm", process.env.APP_URL);
+  url.searchParams.append("token", token);
+  await mailer.sendMail({
+    from: process.env.SMTP_USER,
+    to: user.email,
+    subject: "Confirm Email",
+    html: `<h1>Confirm Email</h1><p>Please confirm your email by clicking on the following link: <a href="${url.toString()}">Confirm Email</a></p>`,
+  });
+}
+
 export const confirmEmail = async (token) => {
   const {
     payload: { userId },

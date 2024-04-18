@@ -7,6 +7,7 @@ import {
   forgotPassword,
   login,
   refreshAccessToken,
+  resendConfirmationEmail,
   resetPassword,
   signUp,
 } from "#src/services/auth.js";
@@ -53,6 +54,20 @@ router.post("/signup", async (req, res) => {
     if (e.code === 11000) {
       return res.status(400).send("Email already exists");
     }
+    return res.status(500).send("Internal server error");
+  }
+});
+
+router.post("/resend-confirmation-email", async (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).send("Username is required");
+  }
+  try {
+    await resendConfirmationEmail(username);
+    return res.status(200).send("Email sent");
+  } catch (e) {
+    logger.error(e.message);
     return res.status(500).send("Internal server error");
   }
 });
@@ -112,7 +127,7 @@ router.post("/token", async (req, res) => {
   }
 });
 
-router.put("token", async (req, res) => {
+router.put("/token", async (req, res) => {
   try {
     // Get the refresh token from the body
     const { refreshToken } = req.body;
