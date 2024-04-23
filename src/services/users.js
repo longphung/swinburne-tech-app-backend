@@ -14,7 +14,7 @@ import Users from "#models/users.js";
  */
 export const getUsersList = async (pagination) => {
   const { _start, _end, _sort, _order, q = "" } = pagination;
-  const result = await Users.paginate(
+  return await Users.paginate(
     {
       $text: { $search: q },
     },
@@ -27,7 +27,6 @@ export const getUsersList = async (pagination) => {
       offset: _start,
     },
   );
-  return result;
 };
 
 /**
