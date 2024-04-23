@@ -53,7 +53,7 @@ export const updateUser = async (userId, userData) => {
 };
 
 export const deleteUser = async (userId) => {
-const user = await Users.findByIdAndDelete(userId);
+  const user = await Users.findByIdAndDelete(userId);
   if (!user) {
     throw new Error("User not found");
   }

@@ -271,8 +271,8 @@ router.delete("/:id", passport.authenticate("bearer", { session: false }), async
     return res.status(403).send("Forbidden");
   }
   try {
-    await deleteUser(id);
-    res.status(204).send(`User ${id} deleted`);
+    const deletedUser = await deleteUser(id);
+    res.status(204).send(`User ${deletedUser._id} deleted`);
   } catch (e) {
     if (e.message === "User not found") {
       return res.status(404).send();
