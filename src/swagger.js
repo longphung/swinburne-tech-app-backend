@@ -11,6 +11,18 @@ const options = {
     info: {
       title: "Techaway API",
       version: packageJson.version,
+      summary: packageJson.description,
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          description: "JWT token",
+          name: "Authorization",
+          in: "header",
+        },
+      },
     },
   },
   apis: ["./index.js", "./src/routes/*.js"],

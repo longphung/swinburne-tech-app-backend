@@ -30,7 +30,13 @@ app.use(loggerMiddleware);
 app.get("/healthcheck", (req, res) => {
   return res.status(204).send("Ok");
 });
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swagger));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swagger, {
+    explorer: true,
+  }),
+);
 app.use("/auth", auth);
 app.use("/users", users);
 
