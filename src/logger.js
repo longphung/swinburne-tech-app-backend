@@ -46,7 +46,7 @@ if (process.env.NODE_ENV !== "production") {
 export const loggerMiddleware = (req, res, next) => {
   const { method, url } = req;
 
-  logger.http(`${method} ${url} ${res.statusCode}`);
+  logger.http(`${method} ${url}`);
 
   next();
 };

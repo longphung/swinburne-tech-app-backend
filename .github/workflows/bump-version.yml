@@ -1,0 +1,26 @@
+name: Bump version
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+    bump-version:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+            with:
+              token: ${{ secrets.PAT }}
+          - uses: actions/setup-node@v4
+            with:
+              node-version: '20'
+          - run: |
+              git config user.name 'github-actions[bot]'
+              git config user.email 'github-actions[bot]@users.noreply.github.com'
+              npm version patch -m "[no ci] Bump version to %s"
+              git push --follow-tags

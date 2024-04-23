@@ -11,10 +11,21 @@ export const initDatabase = async () => {
       user: process.env.DB_USER,
       pass: process.env.DB_PASS,
     });
+    logger.info("Database connected successfully");
+    logger.info("Initializing database");
     // Init collections
     await Users.init();
     await RefreshToken.init();
-    logger.info("Database Connected Successfully");
+
+    // Create indexes
+    await Users.collection.createIndex({
+      name: "text",
+      address: "text",
+      phone: "text",
+      email: "text",
+      username: "text",
+    });
+    logger.info("Database initialized successfully");
   } catch (e) {
     logger.error(e.message);
     process.exit(1);

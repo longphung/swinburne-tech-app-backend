@@ -16,6 +16,53 @@ import passport from "passport";
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /auth/signup:
+ *   post:
+ *     summary: User sign up
+ *     tags: ["Authentication"]
+ *     description: Create a new user account
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *                 pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+ *               role:
+ *                 type: string
+ *                 enum: [customer, technician]
+ *               name:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userId:
+ *                   type: string
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
 router.post("/signup", async (req, res) => {
   const reqSchema = Joi.object({
     username: Joi.string().required(),
@@ -59,6 +106,30 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/resend-confirmation-email:
+ *   post:
+ *     tags: ["Authentication"]
+ *     summary: Resend confirmation email
+ *     description: Resend confirmation email to the user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email sent successfully
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
 router.post("/resend-confirmation-email", async (req, res) => {
   const { username } = req.body;
   if (!username) {
@@ -73,6 +144,28 @@ router.post("/resend-confirmation-email", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/confirm:
+ *   get:
+ *     tags: ["Authentication"]
+ *     summary: Confirm email
+ *     description: Confirm user's email
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         description: Confirmation token
+ *         schema:
+ *           type: string
+ *     responses:
+ *       302:
+ *         description: Redirects to login page
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
 router.get("/confirm", async (req, res) => {
   // If query param doesn't have token then return 400
   if (!req.query.token) {
@@ -90,6 +183,32 @@ router.get("/confirm", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/login/password:
+ *   post:
+ *     tags: ["Authentication"]
+ *     summary: User login
+ *     description: User login using username and password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ */
 router.post("/login/password", passport.authenticate("local", { session: false }), async (req, res) => {
   try {
     const tokens = await login(req.user);
@@ -107,6 +226,30 @@ router.post("/login/password", passport.authenticate("local", { session: false }
   }
 });
 
+/**
+ * @swagger
+ * /auth/token:
+ *   post:
+ *     tags: ["Authentication"]
+ *     summary: Refresh access token
+ *     description: Refresh access token using refresh token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: New access token generated
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ */
 router.post("/token", async (req, res) => {
   try {
     // Get the refresh token from the body
@@ -128,6 +271,30 @@ router.post("/token", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/token:
+ *   put:
+ *     summary: Invalidate refresh token
+ *     tags: ["Authentication"]
+ *     description: Invalidate refresh token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Refresh token invalidated
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal Server Error
+ */
 router.put("/token", async (req, res) => {
   try {
     // Get the refresh token from the body
@@ -143,6 +310,30 @@ router.put("/token", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Forgot password
+ *     tags: ["Authentication"]
+ *     description: Send reset password email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Reset password email sent
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
 router.post("/forgot-password", async (req, res) => {
   const { username } = req.body;
   if (!username) {
@@ -157,6 +348,34 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset password
+ *     tags: ["Authentication"]
+ *     description: Reset user's password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *                 pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+ *               token:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
 router.post("/reset-password", async (req, res) => {
   const reqSchema = Joi.object({
     password: Joi.string()

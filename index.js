@@ -1,4 +1,5 @@
 import express from "express";
+import swaggerUi from "swagger-ui-express";
 import helmet from "helmet";
 import cors from "cors";
 
@@ -6,6 +7,8 @@ import { loggerMiddleware } from "./src/logger.js";
 import auth from "./src/routes/auth.js";
 import rateLimiter from "#src/rate-limiter.js";
 import { initDatabase } from "#db.js";
+import users from "#routes/users.js";
+import swagger from "#src/swagger.js";
 
 await initDatabase();
 
@@ -28,7 +31,15 @@ app.use(loggerMiddleware);
 app.get("/healthcheck", (req, res) => {
   return res.status(204).send("Ok");
 });
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swagger, {
+    explorer: true,
+  }),
+);
 app.use("/auth", auth);
+app.use("/users", users);
 
 app.use("/services",service_route);
 
