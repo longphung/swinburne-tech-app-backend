@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import paginate from "mongoose-paginate-v2";
 
 export const USERS_ROLE = {
   ADMIN: "admin",
@@ -50,10 +51,12 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     role: {
-      type: [{
-        type: String,
-        enum: Object.values(USERS_ROLE),
-      }],
+      type: [
+        {
+          type: String,
+          enum: Object.values(USERS_ROLE),
+        },
+      ],
       required: true,
     },
     name: String,
@@ -105,6 +108,8 @@ userSchema.pre("findOneAndUpdate", async function () {
     password: hashedPassword,
   });
 });
+
+userSchema.plugin(paginate);
 
 /**
  * @type {Model<User, UserModel>}

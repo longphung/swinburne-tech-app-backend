@@ -10,6 +10,7 @@ import { APP_ISSUER } from "#src/globals.js";
 import mongoose from "mongoose";
 import RefreshToken from "#models/refresh-token.js";
 import logger from "#src/logger.js";
+import Users from "#models/users.js";
 
 const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 
@@ -37,12 +38,17 @@ passport.use(
 passport.use(
   new BearerStrategy({}, async (token, done) => {
     try {
-      const { payload } = await jose.jwtVerify(token, secret, {
+      const {
+        payload: { userId },
+      } = await jose.jwtVerify(token, secret, {
         issuer: APP_ISSUER,
       });
-      // const user
-      console.log("payload", payload);
+      const user = await Users.findById(userId);
+      done(null, user);
     } catch (e) {
+      if (e.code === "ERR_JWT_EXPIRED") {
+        return done(null, false, { message: "Token expired" });
+      }
       done(e);
     }
   }),
@@ -185,7 +191,7 @@ export const resendConfirmationEmail = async (username) => {
     subject: "Confirm Email",
     html: `<h1>Confirm Email</h1><p>Please confirm your email by clicking on the following link: <a href="${url.toString()}">Confirm Email</a></p>`,
   });
-}
+};
 
 export const confirmEmail = async (token) => {
   const {
