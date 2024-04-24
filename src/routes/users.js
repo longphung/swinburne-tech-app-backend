@@ -113,8 +113,18 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
     _start: Joi.number().required(),
     _end: Joi.number().required(),
     // sorters
-    _sort: Joi.string().required(),
-    _order: Joi.string().valid("asc", "desc").required(),
+    _sort: Joi.string().custom((value, helper) => {
+      if (!req.query._order) {
+        return helper.error("Order is required when sorting");
+      }
+    }),
+    _order: Joi.string()
+      .valid("asc", "desc")
+      .custom((value, helper) => {
+        if (!req.query._sort) {
+          return helper.error("Sort is required when ordering");
+        }
+      }),
     // filter
     q: Joi.string().default(""),
   });
@@ -223,7 +233,7 @@ router.patch("/:id", passport.authenticate("bearer", { session: false }), async 
       if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
         return helpers.error("forbidden");
       }
-    })
+    }),
   });
   const { error } = schema.validate(req.body);
   if (error) {

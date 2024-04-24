@@ -19,11 +19,15 @@ export const getUsersList = async (pagination) => {
   if (q) {
     query.$text = { $search: q };
   }
+  const sort ={};
+  if (_sort && _order) {
+    sort[_sort] = _order?.toLowerCase();
+  }
   return await Users.paginate(query, {
     projection: {
       password: 0,
     },
-    sort: { [_sort]: _order.toLowerCase() },
+    sort,
     limit: _end - _start,
     offset: _start,
     lean: true,
