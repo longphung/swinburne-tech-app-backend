@@ -53,7 +53,7 @@ const router = express.Router();
  *       500:
  *         description: Internal Server Error
  */
-router.get("/services", async (req, res) => {
+router.get("/", async (req, res) => {
   const schema = Joi.object({
     // pagination
     _start: Joi.number().required(),
@@ -109,7 +109,7 @@ router.get("/services", async (req, res) => {
  *       500:
  *         description: Internal Server Error
  */
-router.get("/services/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   const { id } = req.params;
   if (!id) {
     return res.status(400).send("Service ID is required");
@@ -155,7 +155,7 @@ router.get("/services/:id", async (req, res) => {
  *       500:
  *         description: Internal Server Error
  */
-router.post("/services", passport.authenticate("bearer", { session: false }), async (req, res) => {
+router.post("/", passport.authenticate("bearer", { session: false }), async (req, res) => {
   if (!req.user.role.includes("admin")) {
     return res.status(403).send();
   }
@@ -220,7 +220,7 @@ router.post("/services", passport.authenticate("bearer", { session: false }), as
  *       500:
  *         description: Internal Server Error
  */
-router.put("/services/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+router.put("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
   if (!req.user.role.includes("admin")) {
     return res.status(403).send();
   }
@@ -278,7 +278,7 @@ router.put("/services/:id", passport.authenticate("bearer", { session: false }),
  *       500:
  *         description: Internal Server Error
  */
-router.delete("/services/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+router.delete("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
   if (!req.user.role.includes("admin")) {
     return res.status(403).send();
   }
