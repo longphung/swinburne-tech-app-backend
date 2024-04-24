@@ -13,16 +13,15 @@ import Services from "#models/services.js";
  */
 export const getServicesList = async (pagination) => {
   const { _start, _end, _sort, _order, q = "" } = pagination;
-  return await Services.paginate(
-    {
-      $text: { $search: q },
-    },
-    {
-      sort: { [_sort]: _order.toLowerCase() },
-      limit: _end - _start,
-      offset: _start,
-    },
-  );
+  const query = {};
+  if (q) {
+    query.$text = { $search: q };
+  }
+  return await Services.paginate(query, {
+    sort: { [_sort]: _order.toLowerCase() },
+    limit: _end - _start,
+    offset: _start,
+  });
 };
 
 /**

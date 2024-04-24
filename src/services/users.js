@@ -14,19 +14,18 @@ import Users from "#models/users.js";
  */
 export const getUsersList = async (pagination) => {
   const { _start, _end, _sort, _order, q = "" } = pagination;
-  return await Users.paginate(
-    {
-      $text: { $search: q },
+  const query = {};
+  if (q) {
+    query.$text = { $search: q };
+  }
+  return await Users.paginate(query, {
+    projection: {
+      password: 0,
     },
-    {
-      projection: {
-        password: 0,
-      },
-      sort: { [_sort]: _order.toLowerCase() },
-      limit: _end - _start,
-      offset: _start,
-    },
-  );
+    sort: { [_sort]: _order.toLowerCase() },
+    limit: _end - _start,
+    offset: _start,
+  });
 };
 
 /**
