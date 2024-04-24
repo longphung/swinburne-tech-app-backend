@@ -1,5 +1,6 @@
 import User from "#models/users.js";
 import Users from "#models/users.js";
+import { createIdToken } from "#src/services/auth.js";
 
 /**
  * Performs pagination, sorting, and filtering on the list of users and returns the result along with the total count in x-total-count header
@@ -25,6 +26,8 @@ export const getUsersList = async (pagination) => {
     sort: { [_sort]: _order.toLowerCase() },
     limit: _end - _start,
     offset: _start,
+    lean: true,
+    leanWithId: true,
   });
 };
 
@@ -48,7 +51,7 @@ export const updateUser = async (userId, userData) => {
   if (!user) {
     throw new Error("User not found");
   }
-  return user;
+  return await createIdToken(user);
 };
 
 export const deleteUser = async (userId) => {

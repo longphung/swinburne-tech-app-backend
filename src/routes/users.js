@@ -88,7 +88,7 @@ router.get(
  *         schema:
  *           type: string
  *         required: true
- *         description: Order of sorting (ASC or DESC)
+ *         description: Order of sorting (asc or desc)
  *       - in: query
  *         name: q
  *         schema:
@@ -114,7 +114,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
     _end: Joi.number().required(),
     // sorters
     _sort: Joi.string().required(),
-    _order: Joi.string().valid("ASC", "DESC").required(),
+    _order: Joi.string().valid("asc", "desc").required(),
     // filter
     q: Joi.string().default(""),
   });
@@ -128,7 +128,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
     const users = await getUsersList(req.query);
     // Set x-total-count header
     res.set("x-total-count", users.totalDocs);
-    res.send(users);
+    res.send(users.docs);
   } catch (e) {
     logger.error(e.message);
     res.status(500).send("Internal Server Error");
@@ -138,7 +138,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
 /**
  * @swagger
  * /users/{id}:
- *   put:
+ *   patch:
  *     security:
  *       - bearerAuth: []
  *     tags: ["Users"]
@@ -193,7 +193,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
  *       500:
  *         description: Internal Server Error
  */
-router.put("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+router.patch("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
   const { id } = req.params;
   if (req.user.userId !== id && !req.user.role.includes(USERS_ROLE.ADMIN)) {
     return res.status(403).send("Forbidden");
@@ -213,12 +213,17 @@ router.put("/:id", passport.authenticate("bearer", { session: false }), async (r
       .pattern(/[a-z]+/, "lowercase")
       .pattern(/[0-9]+/, "number")
       .pattern(/[^A-Za-z0-9]+/, "special"),
-    role: Joi.array().items(Joi.string().valid(USERS_ROLE.CUSTOMER, USERS_ROLE.TECHNICIAN)),
+    role: Joi.array().items(Joi.string().valid(USERS_ROLE.CUSTOMER, USERS_ROLE.TECHNICIAN, USERS_ROLE.ADMIN)),
     name: Joi.string(),
     address: Joi.string(),
     phone: Joi.string().pattern(/[0-9]+/),
     email: Joi.string().email(),
-    emailVerified: Joi.boolean(),
+    emailVerified: Joi.boolean().custom((value, helpers) => {
+      // Only allow emailVerified in the request if the user is an admin
+      if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
+        return helpers.error("forbidden");
+      }
+    })
   });
   const { error } = schema.validate(req.body);
   if (error) {

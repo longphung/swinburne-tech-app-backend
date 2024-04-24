@@ -78,6 +78,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    virtuals: true,
   },
 );
 
