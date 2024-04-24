@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import logger from "#src/logger.js";
 import Users from "#models/users.js";
 import RefreshToken from "#models/refresh-token.js";
+import Services from "#models/services.js";
 
 export const initDatabase = async () => {
   try {
@@ -15,6 +16,7 @@ export const initDatabase = async () => {
     logger.info("Initializing database");
     // Init collections
     await Users.init();
+    await Services.init();
     await RefreshToken.init();
 
     // Create indexes
@@ -24,6 +26,10 @@ export const initDatabase = async () => {
       phone: "text",
       email: "text",
       username: "text",
+    });
+    await Services.collection.createIndex({
+      title: "text",
+      label: "text",
     });
     logger.info("Database initialized successfully");
   } catch (e) {
