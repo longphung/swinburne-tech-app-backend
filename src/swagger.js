@@ -23,6 +23,31 @@ const options = {
           in: "header",
         },
       },
+      schemas: {
+        Service: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+            },
+            label: {
+              type: "string",
+            },
+            price: {
+              type: "number",
+            },
+            category: {
+              type: "number",
+            },
+            serviceType: {
+              type: "string",
+            },
+            description: {
+              type: "string",
+            },
+          },
+        }
+      }
     },
   },
   apis: ["./index.js", "./src/routes/*.js"],

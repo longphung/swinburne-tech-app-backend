@@ -7,8 +7,6 @@ import Joi from "joi";
 
 const router = express.Router();
 
-router.get;
-
 /**
  * Get information about the user
  * @swagger
@@ -128,6 +126,8 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
   }
   try {
     const users = await getUsersList(req.query);
+    // Set x-total-count header
+    res.set("x-total-count", users.totalDocs);
     res.send(users);
   } catch (e) {
     logger.error(e.message);

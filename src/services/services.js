@@ -1,0 +1,81 @@
+import Services from "#models/services.js";
+
+/**
+ * Performs pagination, sorting, and filtering on the list of services and returns the result along with the total count in x-total-count header
+ * @param {{
+ *   _start: number;
+ *   _end: number;
+ *   _sort: string;
+ *   _order: string;
+ *   // filter
+ *   q?: string
+ * }} pagination
+ */
+export const getServicesList = async (pagination) => {
+  const { _start, _end, _sort, _order, q = "" } = pagination;
+  return await Services.paginate(
+    {
+      $text: { $search: q },
+    },
+    {
+      sort: { [_sort]: _order.toLowerCase() },
+      limit: _end - _start,
+      offset: _start,
+    },
+  );
+};
+
+/**
+ * @param {string} serviceId
+ */
+export const getService = async (serviceId) => {
+  const service = await Services.findById(serviceId);
+  if (!service) {
+    throw new Error("Service not found");
+  }
+  return service;
+};
+
+/**
+ * @param {{
+ *   title: string;
+ *   label: string;
+ *   price: mongoose.Decimal128;
+ *   category: 1 | 2 | 3 | 4 | 5 | 6;
+ *   serviceType: "onsite" | "remote" | "both";
+ *   description: string;
+ * }} serviceData
+ */
+export const createService = async (serviceData) => {
+  return await Services.create(serviceData);
+};
+
+/**
+ * @param {string} serviceId
+ * @param {{
+ *   title?: string;
+ *   label?: string;
+ *   price?: mongoose.Decimal128;
+ *   category?: 1 | 2 | 3 | 4 | 5 | 6;
+ *   serviceType?: "onsite" | "remote" | "both";
+ *   description?: string;
+ * }} serviceData
+ */
+export const updateService = async (serviceId, serviceData) => {
+  const service = await Services.findByIdAndUpdate(serviceId, serviceData, { new: true });
+  if (!service) {
+    throw new Error("Service not found");
+  }
+  return service;
+};
+
+/**
+ * @param {string} serviceId
+ */
+export const deleteService = async (serviceId) => {
+  const service = await Services.findByIdAndDelete(serviceId);
+  if (!service) {
+    throw new Error("Service not found");
+  }
+  return service;
+};
