@@ -242,8 +242,8 @@ router.patch("/:id", passport.authenticate("bearer", { session: false }), async 
     });
   }
   try {
-    const user = await updateUser(id, req.body);
-    res.send(user);
+    const result = await updateUser(id, req.body, req.user);
+    res.send(result);
   } catch (e) {
     if (e.message === "User not found") {
       return res.status(404).send();

@@ -17,8 +17,12 @@ export const getServicesList = async (pagination) => {
   if (q) {
     query.$text = { $search: q };
   }
+  const sort = {};
+  if (_sort && _order) {
+    sort[_sort] = _order?.toLowerCase();
+  }
   return await Services.paginate(query, {
-    sort: { [_sort]: _order.toLowerCase() },
+    sort,
     limit: _end - _start,
     offset: _start,
   });

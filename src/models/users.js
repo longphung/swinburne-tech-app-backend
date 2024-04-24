@@ -78,7 +78,6 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    virtuals: true,
   },
 );
 
@@ -111,6 +110,9 @@ userSchema.pre("findOneAndUpdate", async function () {
 });
 
 userSchema.plugin(paginate);
+
+userSchema.set("toJSON", { getters: true, virtuals: true });
+userSchema.set("toObject", { getters: true, virtuals: true });
 
 /**
  * @type {Model<User, UserModel>}

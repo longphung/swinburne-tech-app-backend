@@ -31,14 +31,12 @@ const router = express.Router();
  *         name: _sort
  *         schema:
  *           type: string
- *         required: true
  *         description: Sort field
  *       - in: query
  *         name: _order
  *         schema:
  *           type: string
- *           enum: [ASC, DESC]
- *         required: true
+ *           enum: [asc, desc]
  *         description: Sort order
  *       - in: query
  *         name: q
@@ -59,8 +57,18 @@ router.get("/", async (req, res) => {
     _start: Joi.number().required(),
     _end: Joi.number().required(),
     // sorters
-    _sort: Joi.string().required(),
-    _order: Joi.string().valid("ASC", "DESC").required(),
+    _sort: Joi.string().custom((value, helper) => {
+      if (!req.query._order) {
+        return helper.error("Order is required when sorting");
+      }
+    }),
+    _order: Joi.string()
+      .valid("asc", "desc")
+      .custom((value, helper) => {
+        if (!req.query._sort) {
+          return helper.error("Sort is required when ordering");
+        }
+      }),
     // filter
     q: Joi.string().default(""),
   });
@@ -73,7 +81,7 @@ router.get("/", async (req, res) => {
   try {
     const services = await getServicesList(req.query);
     res.set("x-total-count", services.totalDocs);
-    res.status(200).send(services);
+    res.status(200).send(services.docs);
   } catch (error) {
     logger.error(error.message);
     res.status(500).send("Internal Server Error");
