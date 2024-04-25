@@ -210,20 +210,28 @@ export const confirmEmail = async (token) => {
 };
 
 /**
+ * @param {User} userData
+ */
+export const createIdToken = async (userData) => {
+  const { password: _p, ...restUserData } = userData.toObject();
+  return await new jose.SignJWT({ userData: restUserData })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(APP_ISSUER)
+    .setExpirationTime("2h")
+    .sign(secret);
+};
+
+/**
  * Issue ID Token, Access Token and Refresh Token
  * @param {User} userData
  * @returns {Promise<{expiresIn: string, idToken: string, accessToken: string, refreshToken: string, refreshTokenExpiresIn: string }>}
  */
 export const issueTokens = async (userData) => {
-  const { _id, password: _p, ...restUserData } = userData.toObject();
+  const { _id, password: _p } = userData.toObject();
   const expiresIn = "2h";
   const refreshTokenExpiresIn = "14d";
 
-  const idToken = await new jose.SignJWT({ userData: restUserData })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuer(APP_ISSUER)
-    .setExpirationTime(expiresIn)
-    .sign(secret);
+  const idToken = await createIdToken(userData);
 
   const accessToken = await new jose.SignJWT({
     userId: _id,

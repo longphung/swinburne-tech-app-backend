@@ -1,5 +1,6 @@
 import User from "#models/users.js";
 import Users from "#models/users.js";
+import { createIdToken } from "#src/services/auth.js";
 
 /**
  * Performs pagination, sorting, and filtering on the list of users and returns the result along with the total count in x-total-count header
@@ -18,11 +19,15 @@ export const getUsersList = async (pagination) => {
   if (q) {
     query.$text = { $search: q };
   }
+  const sort = {};
+  if (_sort && _order) {
+    sort[_sort] = _order?.toLowerCase();
+  }
   return await Users.paginate(query, {
     projection: {
       password: 0,
     },
-    sort: { [_sort]: _order.toLowerCase() },
+    sort,
     limit: _end - _start,
     offset: _start,
   });
@@ -40,7 +45,13 @@ export const getUser = async (userId) => {
   return user;
 };
 
-export const updateUser = async (userId, userData) => {
+/**
+ * Update user, if updater is the same user, then return the updated user with token
+ * @param userId
+ * @param userData
+ * @param currUser
+ */
+export const updateUser = async (userId, userData, currUser) => {
   const user = await Users.findByIdAndUpdate(userId, userData, {
     new: true,
     projection: { password: 0 },
@@ -48,7 +59,11 @@ export const updateUser = async (userId, userData) => {
   if (!user) {
     throw new Error("User not found");
   }
-  return user;
+  let token;
+  if (currUser.id === userId) {
+    token = await createIdToken(user);
+  }
+  return { user, token };
 };
 
 export const deleteUser = async (userId) => {
