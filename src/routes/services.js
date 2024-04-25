@@ -195,7 +195,7 @@ router.post("/", passport.authenticate("bearer", { session: false }), async (req
 /**
  * @swagger
  * /services/{id}:
- *   put:
+ *   patch:
  *     summary: Update an existing service
  *     description: Update an existing service
  *     tags: [Services]
@@ -228,7 +228,7 @@ router.post("/", passport.authenticate("bearer", { session: false }), async (req
  *       500:
  *         description: Internal Server Error
  */
-router.put("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+router.patch("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
   if (!req.user.role.includes("admin")) {
     return res.status(403).send();
   }
