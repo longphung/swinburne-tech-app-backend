@@ -14,7 +14,7 @@ const services = new Schema(
     price: {
       type: Schema.Types.Decimal128,
       required: true,
-      get: function(value) {
+      get: function (value) {
         if (typeof value !== "undefined") {
           return parseFloat(value.toString());
         }
@@ -34,6 +34,9 @@ const services = new Schema(
     description: {
       type: String,
       required: true,
+    },
+    imageUrl: {
+      type: String,
     },
   },
   {
