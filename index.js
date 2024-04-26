@@ -11,11 +11,11 @@ import users from "#routes/users.js";
 import swagger from "#src/swagger.js";
 import services from "#routes/services.js";
 
+
 await initDatabase();
 
 const app = express();
 const port = process.env.PORT || 5000;
-
 
 app.use(rateLimiter);
 app.use(
