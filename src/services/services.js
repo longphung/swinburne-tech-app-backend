@@ -47,6 +47,7 @@ export const getService = async (serviceId) => {
  *   category: 1 | 2 | 3 | 4 | 5 | 6;
  *   serviceType: "onsite" | "remote" | "both";
  *   description: string;
+ *   imageUrl?: string;
  * }} serviceData
  */
 export const createService = async (serviceData) => {

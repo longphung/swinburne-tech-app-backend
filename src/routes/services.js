@@ -174,6 +174,7 @@ router.post("/", passport.authenticate("bearer", { session: false }), async (req
     category: Joi.number().valid(1, 2, 3, 4, 5, 6).required(),
     serviceType: Joi.string().valid("onsite", "remote", "both").required(),
     description: Joi.string().required(),
+    imageUrl: Joi.string(),
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -239,6 +240,7 @@ router.patch("/:id", passport.authenticate("bearer", { session: false }), async 
     category: Joi.number().valid(1, 2, 3, 4, 5, 6),
     serviceType: Joi.string().valid("onsite", "remote", "both"),
     description: Joi.string(),
+    imageUrl: Joi.string(),
   });
   const { error } = schema.validate(req.body);
   if (error) {

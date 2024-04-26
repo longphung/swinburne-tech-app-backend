@@ -45,6 +45,9 @@ const options = {
             description: {
               type: "string",
             },
+            imageUrl: {
+              type: "string"
+            }
           },
         }
       }
