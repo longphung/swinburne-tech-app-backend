@@ -134,6 +134,144 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// Protected route, for admin to get all services
+/**
+ * @swagger
+ * /services/admin:
+ *   get:
+ *     summary: Get list of services
+ *     tags: [Services]
+ *     description: Retrieve a list of services
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: _start
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Start index for pagination
+ *       - in: query
+ *         name: _end
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: End index for pagination
+ *       - in: query
+ *         name: _sort
+ *         schema:
+ *           type: string
+ *         description: Sort field
+ *       - in: query
+ *         name: _order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Sort order
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Filter query
+ *     responses:
+ *       200:
+ *         description: List of services
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get("/admin", passport.authenticate("bearer", { session: false }), async (req, res) => {
+  if (!req.user.role.includes("admin")) {
+    return res.status(403).send();
+  }
+  const schema = Joi.object({
+    // pagination
+    _start: Joi.number().required(),
+    _end: Joi.number().required(),
+    // sorters
+    _sort: Joi.string().custom((value, helper) => {
+      if (!req.query._order) {
+        return helper.error("Order is required when sorting");
+      }
+    }),
+    _order: Joi.string()
+      .valid("asc", "desc")
+      .custom((value, helper) => {
+        if (!req.query._sort) {
+          return helper.error("Sort is required when ordering");
+        }
+      }),
+    // filter
+    q: Joi.string().default(""),
+  });
+  const { error } = schema.validate(req.query);
+  if (error) {
+    return res.status(400).send({
+      message: error.details[0].message,
+    });
+  }
+  try {
+    const services = await getServicesList(req.query);
+    res.set("x-total-count", services.totalDocs);
+    res.status(200).send(services.docs);
+  } catch (error) {
+    logger.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Protected route, for admin to get an individual and detailed service listing
+/**
+ * @swagger
+ * /services/admin/{id}:
+ *   get:
+ *     summary: Get service by ID
+ *     description: Retrieve a service by ID
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Service ID
+ *     responses:
+ *       200:
+ *         description: Service details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Service'
+ *       400:
+ *         description: Bad Request
+ *       404:
+ *         description: Service not found
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get("/admin/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+  if (!req.user.role.includes("admin")) {
+    return res.status(403).send();
+  }
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).send("Service ID is required");
+  }
+  try {
+    const service = await getService(id);
+    res.status(200).send(service);
+  } catch (error) {
+    if (error.message === "Service not found") {
+      return res.status(404).send("Service not found");
+    }
+    logger.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 // Protected route, requires user to be logged in and only admin should be able to access.
 // Endpoint to create a new service
 /**
