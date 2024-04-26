@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "dotenvx run --env-file=.env.local -- nodemon index.js",
     "start": "dotenvx run -- node index.js",
+    "lint": "eslint . -c eslint.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
