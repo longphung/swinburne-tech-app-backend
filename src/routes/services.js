@@ -81,7 +81,7 @@ router.get("/", async (req, res) => {
   try {
     const services = await getServicesList(req.query);
     res.set("x-total-count", services.totalDocs);
-    res.status(200).send(services.docs);
+    res.status(200).send(services);
   } catch (error) {
     logger.error(error.message);
     res.status(500).send("Internal Server Error");
