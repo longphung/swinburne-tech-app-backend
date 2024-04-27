@@ -40,7 +40,7 @@ router.get(
   }),
   async (req, res) => {
     const { id } = req.params;
-    if (req.user.userId !== id && !req.user.role.includes(USERS_ROLE.ADMIN)) {
+    if (req.user.id !== id && !req.user.role.includes(USERS_ROLE.ADMIN)) {
       return res.status(403).send();
     }
     try {
@@ -126,7 +126,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
         }
       }),
     // filter
-    q: Joi.string().default(""),
+    q: Joi.string().allow("").default(""),
   });
   const { error } = schema.validate(req.query);
   if (error) {
@@ -205,7 +205,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
  */
 router.patch("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
   const { id } = req.params;
-  if (req.user.userId !== id && !req.user.role.includes(USERS_ROLE.ADMIN)) {
+  if (req.user.id !== id && !req.user.role.includes(USERS_ROLE.ADMIN)) {
     return res.status(403).send("Forbidden");
   }
   const schema = Joi.object({
