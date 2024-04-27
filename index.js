@@ -11,7 +11,6 @@ import users from "#routes/users.js";
 import swagger from "#src/swagger.js";
 import services from "#routes/services.js";
 
-
 await initDatabase();
 
 const app = express();

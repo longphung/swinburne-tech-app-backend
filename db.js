@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
+
 import logger from "#src/logger.js";
 import Users from "#models/users.js";
 import RefreshToken from "#models/refresh-token.js";
 import Services from "#models/services.js";
 import Tickets from "#models/tickets.js";
 import Notifications from "#models/notifications.js";
-import Priority_Type from "#models/priorityType.js";
+import PriorityType from "#models/priorityType.js";
 import Urgency from "#models/urgency.js";
-import User_Notification from "#models/userNotification.js"
-
+import UserNotification from "#models/userNotification.js";
 
 export const initDatabase = async () => {
   try {
@@ -26,9 +26,9 @@ export const initDatabase = async () => {
     await RefreshToken.init();
     await Tickets.init();
     await Notifications.init();
-    await Priority_Type.init();
+    await PriorityType.init();
     await Urgency.init();
-    await User_Notification.init();
+    await UserNotification.init();
 
     // Create indexes
     await Users.collection.createIndex({
