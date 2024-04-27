@@ -209,7 +209,9 @@ router.get("/", async (req, res) => {
         }
       }),
     // filter
-    q: Joi.string().default(""),
+    category: Joi.number().valid(1, 2, 3, 4, 5, 6),
+    serviceType: Joi.string().valid("onsite", "remote", "both"),
+    q: Joi.string().allow("").default(""),
   });
   const { error } = schema.validate(req.query);
   if (error) {

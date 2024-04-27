@@ -126,7 +126,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
         }
       }),
     // filter
-    q: Joi.string().default(""),
+    q: Joi.string().allow("").default(""),
   });
   const { error } = schema.validate(req.query);
   if (error) {
