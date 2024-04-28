@@ -223,7 +223,14 @@ router.patch("/:id", passport.authenticate("bearer", { session: false }), async 
       .pattern(/[a-z]+/, "lowercase")
       .pattern(/[0-9]+/, "number")
       .pattern(/[^A-Za-z0-9]+/, "special"),
-    role: Joi.array().items(Joi.string().valid(USERS_ROLE.CUSTOMER, USERS_ROLE.TECHNICIAN, USERS_ROLE.ADMIN)),
+    role: Joi.array()
+      .items(Joi.string().valid(USERS_ROLE.CUSTOMER, USERS_ROLE.TECHNICIAN, USERS_ROLE.ADMIN))
+      .custom((value, helpers) => {
+        // Only allow role in the request if the user is an admin
+        if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
+          return helpers.error("forbidden");
+        }
+      }),
     name: Joi.string(),
     address: Joi.string(),
     phone: Joi.string().pattern(/[0-9]+/),
