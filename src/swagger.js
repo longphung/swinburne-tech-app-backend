@@ -46,11 +46,31 @@ const options = {
               type: "string",
             },
             imageUrl: {
-              type: "string"
-            }
+              type: "string",
+            },
           },
-        }
-      }
+        },
+        ServiceLevelAgreement: {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+            },
+            dueDate: {
+              type: "string",
+            },
+            priceModifier: {
+              type: "number",
+            },
+            fixedPrice: {
+              type: "number",
+            },
+            description: {
+              type: "string",
+            },
+          },
+        },
+      },
     },
   },
   apis: ["./index.js", "./src/routes/*.js"],

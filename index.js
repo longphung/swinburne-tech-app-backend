@@ -10,12 +10,13 @@ import { initDatabase } from "#db.js";
 import users from "#routes/users.js";
 import swagger from "#src/swagger.js";
 import services from "#routes/services.js";
+import checkout from "#routes/checkout.js";
+import serviceLevelAgreement from "#routes/service-level-agreement.js";
 
 await initDatabase();
 
 const app = express();
 const port = process.env.PORT || 5000;
-
 
 app.use(rateLimiter);
 app.use(
@@ -42,6 +43,8 @@ app.use(
 app.use("/auth", auth);
 app.use("/users", users);
 app.use("/services", services);
+app.use("/checkout", checkout);
+app.use("/service-level-agreements", serviceLevelAgreement);
 
 app.listen(port, () => {
   console.log(`🚀🚀🚀 TechAway Backend app listening on port ${port}! 🚀🚀🚀`);
