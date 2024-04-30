@@ -38,6 +38,7 @@ cp .env.example .env.local
    - `SECRET_KEY`: The secret key for generating JWT tokens
    - `APP_URL`: The URL of the backend application
    - `FRONTEND_URL`: The URL of the frontend application
+   - `STRIPE_SECRET_KEY`: The secret key for Stripe payment
 
 6. Start the application:
 ```bash

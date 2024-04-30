@@ -46,11 +46,51 @@ const options = {
               type: "string",
             },
             imageUrl: {
-              type: "string"
-            }
+              type: "string",
+            },
           },
-        }
-      }
+        },
+        ServiceLevelAgreement: {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+            },
+            dueWithinDays: {
+              type: "number",
+            },
+            priceModifier: {
+              type: "number",
+            },
+            fixedPrice: {
+              type: "number",
+            },
+            description: {
+              type: "string",
+            },
+          },
+        },
+        Orders: {
+          type: "object",
+          properties: {
+            customerId: {
+              type: "string",
+            },
+            tickets: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+            },
+            processed: {
+              type: "boolean",
+            },
+            grandTotal: {
+              type: "number",
+            },
+          },
+        },
+      },
     },
   },
   apis: ["./index.js", "./src/routes/*.js"],
