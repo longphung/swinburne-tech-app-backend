@@ -70,6 +70,26 @@ const options = {
             },
           },
         },
+        Orders: {
+          type: "object",
+          properties: {
+            customerId: {
+              type: "string",
+            },
+            tickets: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+            },
+            processed: {
+              type: "boolean",
+            },
+            grandTotal: {
+              type: "number",
+            },
+          },
+        },
       },
     },
   },

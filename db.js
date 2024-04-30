@@ -4,6 +4,7 @@ import Users from "#models/users.js";
 import RefreshToken from "#models/refresh-token.js";
 import Services from "#models/services.js";
 import ServiceLevelAgreement from "#models/service-level-agreements.js";
+import Orders from "#models/orders.js";
 
 export const initDatabase = async () => {
   try {
@@ -20,6 +21,7 @@ export const initDatabase = async () => {
     await Services.init();
     await RefreshToken.init();
     await ServiceLevelAgreement.init();
+    await Orders.init();
 
     // Create indexes
     await Users.collection.createIndex({

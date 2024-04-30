@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import paginate from "mongoose-paginate-v2";
 
 const orderSchema = new mongoose.Schema(
   {
@@ -31,5 +32,17 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+orderSchema.plugin(paginate);
+
+orderSchema.set("toJSON", {
+  getters: true,
+  virtuals: true,
+});
+
+orderSchema.set("toObject", {
+  getters: true,
+  virtuals: true,
+});
 
 export default mongoose.model("Orders", orderSchema);
