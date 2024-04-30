@@ -17,7 +17,7 @@ const serviceLevelAgreementSchema = new Schema(
       required: true,
     },
     fixedPrice: {
-      type: Number,
+      type: mongoose.Decimal128,
       required: true,
     },
     description: {

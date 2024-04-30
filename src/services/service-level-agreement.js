@@ -1,4 +1,5 @@
 import ServiceLevelAgreement from "#models/service-level-agreements.js";
+import mongoose from "mongoose";
 
 /**
  * @param {{
@@ -39,11 +40,22 @@ export const getServiceLevelAgreement = async (id) => {
 };
 
 export const createServiceLevelAgreement = async (slaData) => {
-  return await ServiceLevelAgreement.create(slaData);
+  return await ServiceLevelAgreement.create({
+    ...slaData,
+    // TODO: Move this to a schema method
+    fixedPrice: mongoose.Type.Decimal128(slaData.fixedPrice || 0),
+  });
 };
 
 export const updateServiceLevelAgreement = async (id, slaData) => {
-  const sla = await ServiceLevelAgreement.findByIdAndUpdate(id, slaData, { new: true });
+  const sla = await ServiceLevelAgreement.findByIdAndUpdate(
+    id,
+    {
+      ...slaData,
+      fixedPrice: mongoose.Type.Decimal128(slaData.fixedPrice || 0),
+    },
+    { new: true },
+  );
   if (!sla) {
     throw new Error("Service Level Agreement not found");
   }
