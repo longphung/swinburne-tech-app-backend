@@ -14,12 +14,17 @@ import mongoose from "mongoose";
  * @returns {Promise<*>}
  */
 export const getServicesLevelAgreementList = async (pagination) => {
-  const { _start, _end, _sort, _order, q = "", type } = pagination;
+  const { _start, _end, _sort, _order, q = "", type, ids } = pagination;
   const query = {};
   if (q) {
     query.$text = { $search: q };
   }
-  query.type = type;
+  if (type) {
+    query.type = type;
+  }
+  if (Array.isArray(ids) && ids.length) {
+    query._id = { $in: ids.map((id) => new mongoose.Types.ObjectId(id)) };
+  }
   const sort = {};
   if (_sort && _order) {
     sort[_sort] = _order?.toLowerCase();

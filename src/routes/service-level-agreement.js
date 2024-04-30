@@ -119,7 +119,8 @@ router.get("/", async (req, res) => {
     _sort: Joi.string(),
     _order: Joi.string(),
     q: Joi.string().allow("").default(""),
-    type: Joi.string().valid("completion", "response").required(),
+    type: Joi.string().valid("completion", "response"),
+    ids: Joi.array().items(Joi.string()),
   });
   const { error } = schema.validate(req.query);
   if (error) {
