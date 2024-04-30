@@ -76,7 +76,7 @@ export const createPaymentIntent = async (currUser, cart) => {
     );
     // Create a PaymentIntent with the order amount and currency
     return await stripeInstance.paymentIntents.create({
-      amount: total,
+      amount: total * 100, // aud to cents
       currency: "aud",
     });
   })
