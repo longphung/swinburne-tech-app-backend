@@ -8,17 +8,15 @@ const serviceLevelAgreementSchema = new Schema(
       enum: ["completion", "response"],
       required: true,
     },
-    dueDate: {
-      type: Date,
+    dueWithinDays: {
+      type: Number,
       required: true,
     },
     priceModifier: {
       type: Number,
-      required: true,
     },
     fixedPrice: {
       type: mongoose.Decimal128,
-      required: true,
     },
     description: {
       type: String,
@@ -34,6 +32,11 @@ serviceLevelAgreementSchema.plugin(paginate);
 
 serviceLevelAgreementSchema.set("toJSON", { getters: true, virtuals: true });
 serviceLevelAgreementSchema.set("toObject", { getters: true, virtuals: true });
+
+// Getters for fixedPrice
+serviceLevelAgreementSchema.path("fixedPrice").get(function (value) {
+  return value ? value.toString() : null;
+});
 
 const ServiceLevelAgreement = mongoose.model("ServiceLevelAgreements", serviceLevelAgreementSchema);
 

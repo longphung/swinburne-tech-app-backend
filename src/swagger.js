@@ -56,8 +56,8 @@ const options = {
             type: {
               type: "string",
             },
-            dueDate: {
-              type: "string",
+            dueWithinDays: {
+              type: "number",
             },
             priceModifier: {
               type: "number",

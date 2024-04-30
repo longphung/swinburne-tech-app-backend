@@ -40,11 +40,11 @@ const router = express.Router();
  *         description: Internal Server Error
  */
 router.get("/:id", async (req, res) => {
-  if (!req.query.id) {
+  if (!req.params.id) {
     return res.status(400).json({ message: "Id is required" });
   }
   try {
-    const serviceLevelAgreement = await getServiceLevelAgreement(req.query.id);
+    const serviceLevelAgreement = await getServiceLevelAgreement(req.params.id);
     res.json(serviceLevelAgreement);
   } catch (e) {
     if (e.message === "Service Level Agreement not found") {
@@ -54,6 +54,7 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 });
+
 /**
  * @swagger
  * /service-level-agreements:
@@ -163,8 +164,8 @@ router.get("/", async (req, res) => {
 router.post("/", passport.authenticate("bearer", { session: false }), async (req, res) => {
   const schema = Joi.object({
     type: Joi.string().valid("completion", "response").required(),
-    dueDate: Joi.date().required(),
-    priceModifier: Joi.number().required(),
+    dueWithinDays: Joi.number().required(),
+    priceModifier: Joi.number(),
     fixedPrice: Joi.number(),
     description: Joi.string().required(),
   });
@@ -183,7 +184,7 @@ router.post("/", passport.authenticate("bearer", { session: false }), async (req
 /**
  * @swagger
  * /service-level-agreements/{id}:
- *   put:
+ *   patch:
  *     summary: Update an existing service level agreement
  *     description: Update an existing service level agreement
  *     tags: [Service Level Agreements]
@@ -214,23 +215,23 @@ router.post("/", passport.authenticate("bearer", { session: false }), async (req
  *       500:
  *         description: Internal Server Error
  */
-router.put("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
-  if (!req.query.id) {
+router.patch("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+  if (!req.params.id) {
     return res.status(400).json({ message: "Id is required" });
   }
   const schema = Joi.object({
-    type: Joi.string().valid("completion", "response"),
-    dueDate: Joi.date(),
+    type: Joi.string().valid("completion", "response").required(),
+    dueWithinDays: Joi.number().required(),
     priceModifier: Joi.number(),
     fixedPrice: Joi.number(),
-    description: Joi.string(),
+    description: Joi.string().required(),
   });
   const { error } = schema.validate(req.body);
   if (error) {
     return res.status(400).json({ message: "Invalid request" });
   }
   try {
-    const serviceLevelAgreement = await updateServiceLevelAgreement(req.query.id, req.body);
+    const serviceLevelAgreement = await updateServiceLevelAgreement(req.params.id, req.body);
     res.json(serviceLevelAgreement);
   } catch (e) {
     logger.error(e.message);
@@ -263,11 +264,11 @@ router.put("/:id", passport.authenticate("bearer", { session: false }), async (r
  *         description: Internal Server Error
  */
 router.delete("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
-  if (!req.query.id) {
+  if (!req.params.id) {
     return res.status(400).json({ message: "Id is required" });
   }
   try {
-    await deleteServiceLevelAgreement(req.query.id);
+    await deleteServiceLevelAgreement(req.params.id);
     res.status(204).send("Service Level Agreement deleted successfully");
   } catch (e) {
     logger.error(e.message);
