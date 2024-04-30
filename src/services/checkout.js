@@ -7,7 +7,7 @@ import Orders from "#models/orders.js";
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // eslint-disable-next-line max-lines-per-function
-export const calculateTotal = async (currUser, ticketsIds) => {
+export const calculateOrder = async (currUser, ticketsIds) => {
   // Mongo aggregate query to calculate the total price of the tickets
   // with the given ids
   const aggregate = await Tickets.aggregate()
@@ -52,6 +52,8 @@ export const calculateTotal = async (currUser, ticketsIds) => {
       modifiers_info: 1,
       ticketTotal: 1,
       customerId: 1,
+      note: 1,
+      location: 1,
     })
     .group({
       _id: null,
@@ -63,21 +65,29 @@ export const calculateTotal = async (currUser, ticketsIds) => {
     tickets: aggregate[0].tickets.map((_id) => _id),
     grandTotal: aggregate[0].grandTotal,
   });
-  return order.grandTotal;
+  return {
+    orderId: order.id,
+    orderSummary: aggregate[0],
+  };
 };
 
 export const createPaymentIntent = async (currUser, cart) => {
   const session = await mongoose.startSession();
   return await session.withTransaction(async () => {
     const ticketsIds = await saveCartToTickets(currUser, cart);
-    const total = await calculateTotal(
+    const result = await calculateOrder(
       currUser,
       ticketsIds.map((x) => x.id),
     );
     // Create a PaymentIntent with the order amount and currency
-    return await stripeInstance.paymentIntents.create({
-      amount: total * 100, // aud to cents
+    const paymentIntent = await stripeInstance.paymentIntents.create({
+      amount: result.orderSummary.grandTotal * 100, // aud to cents
       currency: "aud",
     });
-  })
+
+    return {
+      orderResult: result,
+      paymentIntent: paymentIntent,
+    };
+  });
 };

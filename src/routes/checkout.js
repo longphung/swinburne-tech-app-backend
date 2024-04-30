@@ -94,7 +94,7 @@ router.post("/create-payment-intent", passport.authenticate("bearer", { session:
           location: Joi.string(),
         }).unknown(true),
       )
-      .required(),
+      .min(1),
   });
 
   const { error } = schema.validate(req.body);
@@ -102,12 +102,14 @@ router.post("/create-payment-intent", passport.authenticate("bearer", { session:
     return res.status(400).send("Invalid request body");
   }
   try {
-    const paymentIntent = await createPaymentIntent(req.user, req.body.items);
+    const { paymentIntent, orderResult } = await createPaymentIntent(req.user, req.body.items);
     res.send({
       clientSecret: paymentIntent.client_secret,
+      orderResult,
     });
   } catch (e) {
-    logger.error(e);
+    console.error(e);
+    logger.error(e.message);
     return res.status(500).send("Error creating payment intent");
   }
 });
