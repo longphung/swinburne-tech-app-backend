@@ -1,62 +1,115 @@
 import express from "express";
-import Stripe from "stripe";
 import Joi from "joi";
+import passport from "passport";
 
-const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+import { createPaymentIntent } from "#src/services/checkout.js";
+import logger from "#src/logger.js";
 
 const router = express.Router();
-
-router.post("/create-payment-intent", async (req, res) => {
-  const { total } = req.body;
-
-  // const schema = Joi.object({
-  //   items: Joi.array()
-  //     .items(
-  //       Joi.object({
-  //         // id: string;
-  //         // serviceId: string;
-  //         // title: string;
-  //         // label: string;
-  //         // price: number;
-  //         // category: number;
-  //         // serviceType: "onsite" | "remote" | "both";
-  //         // description: string;
-  //         // imageUrl?: string;
-  //         // note?: string;
-  //         // priorityDueDate: Date;
-  //         // location: string;
-  //         id: Joi.string().required(),
-  //         serviceId: Joi.string().required(),
-  //         title: Joi.string().required(),
-  //         label: Joi.string().required(),
-  //         price: Joi.number().required(),
-  //         category: Joi.number().required(),
-  //         serviceType: Joi.string().valid("onsite", "remote", "both").required(),
-  //         description: Joi.string().required(),
-  //         imageUrl: Joi.string().optional(),
-  //         note: Joi.string().optional(),
-  //         priorityDueDate: Joi.date().required(),
-  //         location: Joi.string().required(),
-  //       }),
-  //     )
-  //     .required(),
-  //   total: Joi.number().required(),
-  // });
-
-  // const { error } = schema.validate(req.body);
-  // if (error) {
-  //   return res.status(400).send("Invalid request body");
-  // }
-
-  // Create a PaymentIntent with the order amount and currency
-  const paymentIntent = await stripeInstance.paymentIntents.create({
-    amount: total || 5000,
-    currency: "aud",
+/**
+ * @swagger
+ * /checkout/create-payment-intent:
+ *   post:
+ *     summary: Create payment intent
+ *     tags: [Checkout]
+ *     description: Create payment intent for checkout
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     serviceId:
+ *                       type: string
+ *                     title:
+ *                       type: string
+ *                     label:
+ *                       type: string
+ *                     modifiers:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                     category:
+ *                       type: number
+ *                     serviceType:
+ *                       type: string
+ *                       enum: [onsite, remote, both]
+ *                     description:
+ *                       type: string
+ *                     imageUrl:
+ *                       type: string
+ *                     note:
+ *                       type: string
+ *                     location:
+ *                       type: string
+ *             required:
+ *               - items
+ *     responses:
+ *       200:
+ *         description: Payment intent created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 clientSecret:
+ *                   type: string
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
+router.post("/create-payment-intent", passport.authenticate("bearer", { session: false }), async (req, res) => {
+  const schema = Joi.object({
+    items: Joi.array()
+      .items(
+        Joi.object({
+          id: Joi.string().required(),
+          serviceId: Joi.string().required(),
+          title: Joi.string().required(),
+          label: Joi.string().required(),
+          modifiers: Joi.array().items(
+            Joi.object({
+              id: Joi.string().required(),
+            }).unknown(true),
+          ),
+          category: Joi.number().required(),
+          serviceType: Joi.string().valid("onsite", "remote", "both").required(),
+          description: Joi.string().required(),
+          imageUrl: Joi.string(),
+          note: Joi.string(),
+          location: Joi.string(),
+        }).unknown(true),
+      )
+      .required(),
   });
 
-  res.send({
-    clientSecret: paymentIntent.client_secret,
-  });
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).send("Invalid request body");
+  }
+  try {
+    const paymentIntent = await createPaymentIntent(req.user, req.body.items);
+    res.send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (e) {
+    logger.error(e);
+    return res.status(500).send("Error creating payment intent");
+  }
 });
 
 export default router;

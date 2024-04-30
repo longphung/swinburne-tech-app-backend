@@ -14,11 +14,16 @@ const ticketSchema = new mongoose.Schema(
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
+    modifiers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ServiceLevelAgreements",
+        default: [],
+      },
+    ],
     note: {
       type: String,
-      required: true,
     },
     urgency: {
       type: String,
@@ -30,7 +35,6 @@ const ticketSchema = new mongoose.Schema(
     },
     location: {
       type: String,
-      required: true,
     },
   },
   { timestamps: true },
