@@ -17,6 +17,12 @@ const serviceLevelAgreementSchema = new Schema(
     },
     fixedPrice: {
       type: mongoose.Decimal128,
+      get: function (value) {
+        if (typeof value !== "undefined") {
+          return parseFloat(value.toString());
+        }
+        return value;
+      },
     },
     description: {
       type: String,
@@ -32,11 +38,6 @@ serviceLevelAgreementSchema.plugin(paginate);
 
 serviceLevelAgreementSchema.set("toJSON", { getters: true, virtuals: true });
 serviceLevelAgreementSchema.set("toObject", { getters: true, virtuals: true });
-
-// Getters for fixedPrice
-serviceLevelAgreementSchema.path("fixedPrice").get(function (value) {
-  return value ? value.toString() : null;
-});
 
 const ServiceLevelAgreement = mongoose.model("ServiceLevelAgreements", serviceLevelAgreementSchema);
 

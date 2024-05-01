@@ -48,7 +48,7 @@ export const createServiceLevelAgreement = async (slaData) => {
   return await ServiceLevelAgreement.create({
     ...slaData,
     // TODO: Move this to a schema method
-    fixedPrice: new mongoose.Types.Decimal128(slaData.fixedPrice.toString() || "0"),
+    fixedPrice: slaData.fixedPrice?.toString() || "0",
   });
 };
 
@@ -57,7 +57,7 @@ export const updateServiceLevelAgreement = async (id, slaData) => {
     id,
     {
       ...slaData,
-      fixedPrice: new mongoose.Types.Decimal128(slaData.fixedPrice.toString() || "0"),
+      fixedPrice: slaData.fixedPrice?.toString() || "0",
     },
     { new: true },
   );
