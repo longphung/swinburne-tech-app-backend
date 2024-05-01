@@ -9,6 +9,8 @@ import Notifications from "#models/notifications.js";
 import PriorityType from "#models/priorityType.js";
 import Urgency from "#models/urgency.js";
 import UserNotification from "#models/userNotification.js";
+import ServiceLevelAgreement from "#models/service-level-agreements.js";
+import Orders from "#models/orders.js";
 
 export const initDatabase = async () => {
   try {
@@ -29,6 +31,8 @@ export const initDatabase = async () => {
     await PriorityType.init();
     await Urgency.init();
     await UserNotification.init();
+    await ServiceLevelAgreement.init();
+    await Orders.init();
 
     // Create indexes
     await Users.collection.createIndex({
@@ -41,6 +45,9 @@ export const initDatabase = async () => {
     await Services.collection.createIndex({
       title: "text",
       label: "text",
+    });
+    await ServiceLevelAgreement.collection.createIndex({
+      type: "text",
     });
     logger.info("Database initialized successfully");
   } catch (e) {
