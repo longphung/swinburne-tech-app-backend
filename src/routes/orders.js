@@ -12,6 +12,8 @@ const router = express.Router();
  *   get:
  *     summary: Get list of orders
  *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
  *     description: Retrieve a list of orders with pagination and sorting options
  *     parameters:
  *       - in: query
@@ -51,7 +53,7 @@ const router = express.Router();
  *       500:
  *         description: Internal Server Error
  */
-router.get("/", async (req, res) => {
+router.get("/", passport.authenticate("bearer", { session: false }), async (req, res) => {
   const schema = Joi.object({
     // pagination
     _start: Joi.number().required(),
@@ -78,6 +80,8 @@ router.get("/", async (req, res) => {
  *   get:
  *     summary: Get order by ID
  *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
  *     description: Retrieve an order by its ID
  *     parameters:
  *       - in: path
@@ -116,13 +120,14 @@ router.get("/:id", passport.authenticate("bearer", { session: false }), async (r
   }
 });
 
-
 /**
  * @swagger
  * /orders/{id}:
  *   patch:
  *     summary: Update an existing order
  *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
  *     description: Update an existing order by its ID
  *     parameters:
  *       - in: path
