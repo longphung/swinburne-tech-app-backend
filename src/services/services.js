@@ -12,10 +12,16 @@ import Services from "#models/services.js";
  * }} pagination
  */
 export const getServicesList = async (pagination) => {
-  const { _start, _end, _sort, _order, q = "" } = pagination;
+  const { _start, _end, _sort, _order, category, serviceType, q = "" } = pagination;
   const query = {};
   if (q) {
     query.$text = { $search: q };
+  }
+  if (category) {
+    query.category = category;
+  }
+  if (serviceType) {
+    query.serviceType = serviceType;
   }
   const sort = {};
   if (_sort && _order) {
@@ -47,6 +53,7 @@ export const getService = async (serviceId) => {
  *   category: 1 | 2 | 3 | 4 | 5 | 6;
  *   serviceType: "onsite" | "remote" | "both";
  *   description: string;
+ *   imageUrl?: string;
  * }} serviceData
  */
 export const createService = async (serviceData) => {

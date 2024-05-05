@@ -1,11 +1,12 @@
 {
   "name": "swinburne-tech-app-backend",
-  "version": "0.0.5",
+  "version": "0.0.10",
   "description": "Swinburne Technology Application backend",
   "main": "index.js",
   "scripts": {
     "dev": "dotenvx run --env-file=.env.local -- nodemon index.js",
     "start": "dotenvx run -- node index.js",
+    "lint": "eslint . -c eslint.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -30,13 +31,13 @@
   },
   "homepage": "https://github.com/longphung/swinburne-tech-app-backend#readme",
   "dependencies": {
-    "@dotenvx/dotenvx": "^0.35.1",
+    "@dotenvx/dotenvx": "^0.37.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.2.0",
     "helmet": "^7.1.0",
-    "joi": "^17.12.3",
+    "joi": "^17.13.0",
     "jose": "^5.2.4",
     "mongoose": "^8.3.2",
     "mongoose-paginate-v2": "^1.8.0",
@@ -45,6 +46,7 @@
     "passport-custom": "^1.1.1",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
+    "stripe": "^15.4.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "winston": "^3.13.0",
@@ -56,7 +58,7 @@
   "devDependencies": {
     "@eslint/js": "^9.1.1",
     "eslint": "^9.1.1",
-    "globals": "^15.0.0",
+    "globals": "^15.1.0",
     "nodemon": "^3.1.0",
     "prettier": "3.2.5"
   }

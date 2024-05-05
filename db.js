@@ -42,6 +42,9 @@ export const initDatabase = async () => {
       title: "text",
       label: "text",
     });
+    // await ServiceLevelAgreement.collection.createIndex({
+    //   type: "text",
+    // });
     logger.info("Database initialized successfully");
   } catch (e) {
     logger.error(e.message);
