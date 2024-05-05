@@ -5,10 +5,6 @@ import Users from "#models/users.js";
 import RefreshToken from "#models/refresh-token.js";
 import Services from "#models/services.js";
 import Tickets from "#models/tickets.js";
-import Notifications from "#models/notifications.js";
-import PriorityType from "#models/priorityType.js";
-import Urgency from "#models/urgency.js";
-import UserNotification from "#models/userNotification.js";
 import ServiceLevelAgreement from "#models/service-level-agreements.js";
 import Orders from "#models/orders.js";
 
@@ -27,10 +23,6 @@ export const initDatabase = async () => {
     await Services.init();
     await RefreshToken.init();
     await Tickets.init();
-    await Notifications.init();
-    await PriorityType.init();
-    await Urgency.init();
-    await UserNotification.init();
     await ServiceLevelAgreement.init();
     await Orders.init();
 
