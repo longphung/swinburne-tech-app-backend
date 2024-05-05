@@ -9,6 +9,24 @@ export const getOrdersList = async (pagination) => {
   }
   return await Orders.paginate(query, {
     sort,
+    populate: [
+      {
+        path: "customerId",
+        select: "name",
+      },
+      {
+        path: "tickets",
+        select: "serviceId",
+        populate: {
+          path: "serviceId",
+          select: "title",
+        },
+        transform: (ticket) => ({
+          _id: ticket._id,
+          service: ticket.serviceId.title,
+        }),
+      },
+    ],
     limit: _end - _start,
     offset: _start,
   });
