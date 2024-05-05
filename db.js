@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
+
 import logger from "#src/logger.js";
 import Users from "#models/users.js";
 import RefreshToken from "#models/refresh-token.js";
 import Services from "#models/services.js";
+import Tickets from "#models/tickets.js";
 import ServiceLevelAgreement from "#models/service-level-agreements.js";
 import Orders from "#models/orders.js";
 
@@ -20,6 +22,7 @@ export const initDatabase = async () => {
     await Users.init();
     await Services.init();
     await RefreshToken.init();
+    await Tickets.init();
     await ServiceLevelAgreement.init();
     await Orders.init();
 

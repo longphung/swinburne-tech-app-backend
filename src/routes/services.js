@@ -1,8 +1,10 @@
 import express from "express";
 import passport from "passport";
 import Joi from "joi";
+
 import { createService, deleteService, getService, getServicesList, updateService } from "#src/services/services.js";
 import logger from "#src/logger.js";
+import { USERS_ROLE } from "#models/users.js";
 
 const router = express.Router();
 
@@ -54,7 +56,7 @@ const router = express.Router();
  *         description: Internal Server Error
  */
 router.get("/admin", passport.authenticate("bearer", { session: false }), async (req, res) => {
-  if (!req.user.role.includes("admin")) {
+  if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
     return res.status(403).send();
   }
   const schema = Joi.object({
@@ -126,7 +128,7 @@ router.get("/admin", passport.authenticate("bearer", { session: false }), async 
  *         description: Internal Server Error
  */
 router.get("/admin/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
-  if (!req.user.role.includes("admin")) {
+  if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
     return res.status(403).send();
   }
   const { id } = req.params;
@@ -305,7 +307,7 @@ router.get("/:id", async (req, res) => {
  *         description: Internal Server Error
  */
 router.post("/", passport.authenticate("bearer", { session: false }), async (req, res) => {
-  if (!req.user.role.includes("admin")) {
+  if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
     return res.status(403).send();
   }
   const schema = Joi.object({
@@ -371,7 +373,7 @@ router.post("/", passport.authenticate("bearer", { session: false }), async (req
  *         description: Internal Server Error
  */
 router.patch("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
-  if (!req.user.role.includes("admin")) {
+  if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
     return res.status(403).send();
   }
   const schema = Joi.object({
@@ -430,7 +432,7 @@ router.patch("/:id", passport.authenticate("bearer", { session: false }), async 
  *         description: Internal Server Error
  */
 router.delete("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
-  if (!req.user.role.includes("admin")) {
+  if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
     return res.status(403).send();
   }
   if (!req.params.id) {

@@ -70,7 +70,7 @@ const options = {
             },
           },
         },
-        Orders: {
+        Order: {
           type: "object",
           properties: {
             customerId: {
