@@ -1,0 +1,16 @@
+[Unit]
+Description=99support backend service
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/home/ubuntu/swinburne-tech-app-backend
+ExecStart=/home/ubuntu/.volta/bin/npm run start
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+
