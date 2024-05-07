@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 User=root
-WorkingDirectory=/home/ubuntu/swinburne-tech-app-backend
-ExecStart=/home/ubuntu/.volta/bin/npm run start
+WorkingDirectory=/home/ec2-user/swinburne-tech-app-backend
+ExecStart=/usr/bin/npm run start
 Restart=always
 RestartSec=10
 StandardOutput=syslog
