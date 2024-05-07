@@ -14,3 +14,93 @@ export const saveCartToTickets = async (currUser, cart) => {
 
   return await Tickets.insertMany(tickets);
 };
+
+/**
+ * @param {
+ *   _start: number,
+ *   _end: number,
+ *   _sort: string,
+ *   _order: string,
+ *   customerId: string,
+ *   customerName: string,
+ *   urgency: string,
+ *   location: string,
+ *   assignedTo: string
+ * } pagination The pagination object
+ * @returns {Promise<*>}
+ */
+export const getTicketsList = async (pagination) => {
+  const { _start, _end, _sort, _order, customerId, customerName, urgency, location, assignedTo } = pagination;
+  const query = {};
+  if (assignedTo) {
+    query.assignedTo = assignedTo;
+  }
+  if (customerId) {
+    query.customerId = customerId;
+  }
+  if (urgency) {
+    query.urgency = urgency;
+  }
+  if (location) {
+    query.location = location;
+  }
+  const sort = {};
+  if (_sort && _order) {
+    sort[_sort] = _order?.toLowerCase();
+  }
+  return await Tickets.paginate(query, {
+    sort,
+    populate: [
+      {
+        path: "customerId",
+        select: "name _id",
+        ...(customerName && {
+          match: {
+            name: { $regex: customerName, $options: "i" },
+          },
+        }),
+      },
+      {
+        path: "serviceId",
+        select: "title _id",
+      },
+      {
+        path: "assignedTo",
+        select: "name _id",
+      },
+      {
+        path: "modifiers",
+        select: "type description _id",
+      },
+    ],
+    limit: _end - _start,
+    offset: _start,
+  });
+};
+
+export const getTicket = async (query) => {
+  const ticket = await Tickets.findOne(query).populate({
+    path: "customerId",
+    select: "name",
+  });
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+  return ticket;
+};
+
+export const updateTicket = async (query, ticketData) => {
+  const ticket = await Tickets.findOneAndUpdate(query, ticketData, { new: true });
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+  return ticket;
+};
+
+export const deleteTicket = async (query) => {
+  const ticket = await Tickets.findOneAndDelete(query);
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+  return ticket;
+};
