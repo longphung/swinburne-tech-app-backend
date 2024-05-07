@@ -101,7 +101,7 @@ router.get(
     };
     const { error } = Joi.object(schema).validate(req.query);
     if (error) {
-      return res.status(400).send(error.details[0].message);
+      return res.status(400).send("Bad Request");
     }
     try {
       const tickets = await getTicketsList(req.query);
@@ -221,7 +221,6 @@ router.patch("/tickets/:id", passport.authenticate("bearer", { session: false })
     res.status(500).send("Error updating ticket");
   }
 });
-
 
 /**
  * @swagger
