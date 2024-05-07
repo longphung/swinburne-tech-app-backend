@@ -13,6 +13,7 @@ import services from "#routes/services.js";
 import checkout from "#routes/checkout.js";
 import serviceLevelAgreement from "#routes/service-level-agreement.js";
 import orders from "#routes/orders.js";
+import tickets from "#routes/tickets.js";
 
 await initDatabase();
 
@@ -25,7 +26,13 @@ app.use(
     origin: [process.env.APP_URL, process.env.FRONTEND_URL],
   }),
 );
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: false }));
 
 app.use(helmet());
@@ -36,6 +43,7 @@ app.get("/healthcheck", (req, res) => {
 });
 app.use(
   "/api-docs",
+
   swaggerUi.serve,
   swaggerUi.setup(swagger, {
     explorer: true,
@@ -47,6 +55,7 @@ app.use("/services", services);
 app.use("/checkout", checkout);
 app.use("/service-level-agreements", serviceLevelAgreement);
 app.use("/orders", orders);
+app.use("/tickets", tickets);
 
 app.listen(port, () => {
   console.log(`🚀🚀🚀 TechAway Backend app listening on port ${port}! 🚀🚀🚀`);

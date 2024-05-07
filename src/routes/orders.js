@@ -75,7 +75,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
     res.status(200).send(orders.docs);
   } catch (error) {
     logger.error(error.message);
-    res.status(500).json({ error: error.message });
+    res.status(500).send("Error retrieving orders");
   }
 });
 /**
@@ -189,7 +189,7 @@ router.patch("/:id", passport.authenticate("bearer", { session: false }), async 
  *   delete:
  *     tags: [Orders]
  *     summary: Cancel an order
- *     description: Cancel an order by its ID
+ *     description: Cancel an order by its ID, setting the status to "cancelled" and cancelling all associated tickets
  *     parameters:
  *       - in: path
  *         name: id

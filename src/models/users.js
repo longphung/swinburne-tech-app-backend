@@ -75,6 +75,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    stripeCustomerId: String,
   },
   {
     timestamps: true,

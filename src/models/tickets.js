@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import paginate from "mongoose-paginate-v2";
+
 const ticketSchema = new mongoose.Schema(
   {
     serviceId: {
@@ -36,8 +38,14 @@ const ticketSchema = new mongoose.Schema(
     location: {
       type: String,
     },
+    cancelled: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true, getters: true }, toObject: { virtuals: true, getters: true } },
 );
+
+ticketSchema.plugin(paginate);
 
 export default mongoose.model("Tickets", ticketSchema);

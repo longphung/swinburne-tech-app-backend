@@ -1,4 +1,7 @@
+import mongoose from "mongoose";
+
 import Orders from "#models/orders.js";
+import Tickets from "#models/tickets.js";
 
 export const getOrdersList = async (pagination) => {
   const { _start, _end, _sort, _order, customerId } = pagination;
@@ -55,9 +58,18 @@ export const updateOrder = async (query, orderData) => {
 };
 
 export const cancelOrder = async (query) => {
-  const order = await Orders.findOneAndUpdate(query, { status: "cancelled" }, { new: true });
-  if (!order) {
-    throw new Error("Order not found");
-  }
-  return order;
+  const session = await mongoose.startSession();
+  return await session.withTransaction(async () => {
+    const order = await Orders.findOneAndUpdate(query, { status: "cancelled" }, { new: true });
+    const ticketQuery = {
+      id: {
+        $in: order.tickets,
+      },
+    };
+    await Tickets.updateMany(ticketQuery, { cancelled: true });
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    return order;
+  });
 };
