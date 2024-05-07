@@ -91,7 +91,7 @@ router.get(
       _start: Joi.number().required(),
       _end: Joi.number().required(),
       _sort: Joi.string(),
-      _order: Joi.string().valid("ASC", "DESC"),
+      _order: Joi.string(),
       // filter
       customerId: Joi.string(),
       customerName: Joi.string(),

@@ -26,7 +26,13 @@ app.use(
     origin: [process.env.APP_URL, process.env.FRONTEND_URL],
   }),
 );
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: false }));
 
 app.use(helmet());
@@ -37,6 +43,7 @@ app.get("/healthcheck", (req, res) => {
 });
 app.use(
   "/api-docs",
+
   swaggerUi.serve,
   swaggerUi.setup(swagger, {
     explorer: true,
