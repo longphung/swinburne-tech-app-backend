@@ -157,6 +157,9 @@ router.get("/:id", passport.authenticate("bearer", { session: false }), async (r
     const ticket = await getTicket(query);
     res.status(200).json(ticket);
   } catch (error) {
+    if (error.message === "Forbidden") {
+      return res.status(403).send("Forbidden");
+    }
     if (error.message === "Ticket not found") {
       return res.status(404).send("Ticket not found");
     }
@@ -211,9 +214,12 @@ router.patch("/tickets/:id", passport.authenticate("bearer", { session: false })
   }
 
   try {
-    const updatedTicket = await updateTicket(query, req.body);
+    const updatedTicket = await updateTicket(query, req.body, req.user);
     res.status(200).json(updatedTicket);
   } catch (error) {
+    if (error.message === "Forbidden") {
+      return res.status(403).send("Forbidden");
+    }
     if (error.message === "Ticket not found") {
       return res.status(404).send("Ticket not found");
     }

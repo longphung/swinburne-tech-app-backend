@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Tickets from "#models/tickets.js";
+import { USERS_ROLE } from "#models/users.js";
 
 export const saveCartToTickets = async (currUser, cart) => {
   const tickets = cart.map((item) => ({
@@ -102,7 +103,24 @@ export const getTicket = async (query) => {
   return ticket;
 };
 
-export const updateTicket = async (query, ticketData) => {
+export const updateTicket = async (query, ticketData, currUser) => {
+  const technicianFields = ["assignedTo", "status", "note", "urgency", "location"];
+  const customerFields = ["note", "location"];
+
+  if (currUser.role.includes(USERS_ROLE.TECHNICIAN)) {
+    const isAllowed = Object.keys(ticketData).every((key) => technicianFields.includes(key));
+    if (!isAllowed) {
+      throw new Error("Forbidden");
+    }
+  }
+
+  if (currUser.role.includes(USERS_ROLE.CUSTOMER)) {
+    const isAllowed = Object.keys(ticketData).every((key) => customerFields.includes(key));
+    if (!isAllowed) {
+      throw new Error("Forbidden");
+    }
+  }
+
   const ticket = await Tickets.findOneAndUpdate(query, ticketData, { new: true });
   if (!ticket) {
     throw new Error("Ticket not found");
