@@ -70,7 +70,7 @@ const options = {
             },
           },
         },
-        Orders: {
+        Order: {
           type: "object",
           properties: {
             customerId: {
@@ -87,6 +87,41 @@ const options = {
             },
             grandTotal: {
               type: "number",
+            },
+          },
+        },
+        Ticket: {
+          type: "object",
+          properties: {
+            customerId: {
+              type: "string",
+            },
+            serviceId: {
+              type: "string",
+            },
+            urgency: {
+              type: "string",
+            },
+            location: {
+              type: "string",
+            },
+            assignedTo: {
+              type: "string",
+            },
+            modifiers: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+            },
+            note: {
+              type: "string",
+            },
+            refundFlag: {
+              type: "string",
+            },
+            cancelled: {
+              type: "boolean",
             },
           },
         },

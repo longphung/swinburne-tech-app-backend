@@ -15,9 +15,10 @@ const orderSchema = new mongoose.Schema(
         required: true,
       },
     ],
-    processed: {
-      type: Boolean,
-      default: false,
+    status: {
+      type: String,
+      enum: ["pending", "cancelled", "completed"],
+      default: "pending",
     },
     grandTotal: {
       type: mongoose.Decimal128,
@@ -28,6 +29,9 @@ const orderSchema = new mongoose.Schema(
         }
         return value;
       },
+    },
+    paymentIntentId: {
+      type: String,
     },
   },
   { timestamps: true },

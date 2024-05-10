@@ -73,3 +73,11 @@ export const deleteUser = async (userId) => {
   }
   return user;
 };
+
+export const addStripeCustomerId = async (userId, stripeCustomerId) => {
+  const user = await Users.findByIdAndUpdate(userId, { stripeCustomerId }, { new: true, projection: { password: 0 } });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
+};

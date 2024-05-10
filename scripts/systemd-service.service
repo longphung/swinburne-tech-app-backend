@@ -1,0 +1,16 @@
+[Unit]
+Description=99support backend service
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/home/ec2-user/swinburne-tech-app-backend
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+

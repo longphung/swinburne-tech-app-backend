@@ -39,6 +39,7 @@ cp .env.example .env.local
    - `APP_URL`: The URL of the backend application
    - `FRONTEND_URL`: The URL of the frontend application
    - `STRIPE_SECRET_KEY`: The secret key for Stripe payment
+   - `STRIPE_WEBHOOK_SECRET`: The webhook secret for Stripe payment
 
 6. Start the application:
 ```bash

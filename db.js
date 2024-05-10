@@ -1,14 +1,12 @@
 import mongoose from "mongoose";
+
 import logger from "#src/logger.js";
 import Users from "#models/users.js";
 import RefreshToken from "#models/refresh-token.js";
 import Services from "#models/services.js";
 import Tickets from "#models/tickets.js";
-import Notifications from "#models/notifications.js";
-import Priority_Type from "#models/priorityType.js";
-import Urgency from "#models/urgency.js";
-import User_Notification from "#models/userNotification.js"
-
+import ServiceLevelAgreement from "#models/service-level-agreements.js";
+import Orders from "#models/orders.js";
 
 export const initDatabase = async () => {
   try {
@@ -25,10 +23,8 @@ export const initDatabase = async () => {
     await Services.init();
     await RefreshToken.init();
     await Tickets.init();
-    await Notifications.init();
-    await Priority_Type.init();
-    await Urgency.init();
-    await User_Notification.init();
+    await ServiceLevelAgreement.init();
+    await Orders.init();
 
     // Create indexes
     await Users.collection.createIndex({
@@ -42,9 +38,9 @@ export const initDatabase = async () => {
       title: "text",
       label: "text",
     });
-    // await ServiceLevelAgreement.collection.createIndex({
-    //   type: "text",
-    // });
+    await ServiceLevelAgreement.collection.createIndex({
+      type: "text",
+    });
     logger.info("Database initialized successfully");
   } catch (e) {
     logger.error(e.message);

@@ -3,6 +3,7 @@ import Tickets from "#models/tickets.js";
 import { saveCartToTickets } from "#src/services/tickets.js";
 import Stripe from "stripe";
 import Orders from "#models/orders.js";
+import { addStripeCustomerId } from "#src/services/users.js";
 
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -71,6 +72,14 @@ export const calculateOrder = async (currUser, ticketsIds) => {
   };
 };
 
+/**
+ * Saves user's cart to tickets
+ * Calculates the order total
+ * Upsert customer details in Stripe
+ * Creates a PaymentIntent with the user details
+ * @param currUser
+ * @param cart
+ */
 export const createPaymentIntent = async (currUser, cart) => {
   const session = await mongoose.startSession();
   return await session.withTransaction(async () => {
@@ -79,10 +88,31 @@ export const createPaymentIntent = async (currUser, cart) => {
       currUser,
       ticketsIds.map((x) => x.id),
     );
+    // Handle retrieving or creating a customer in Stripe
+    let customerInStripe = {};
+    if (currUser.stripeCustomerId) {
+      customerInStripe = await stripeInstance.customers.retrieve(currUser.stripeCustomerId || "");
+    }
+    if (!customerInStripe?.id || customerInStripe?.deleted) {
+      customerInStripe = await stripeInstance.customers.create({
+        email: currUser.email,
+        name: currUser.name,
+        phone: currUser.phone,
+        metadata: {
+          userId: currUser.id,
+        },
+      });
+      await addStripeCustomerId(currUser._id, customerInStripe.id);
+    }
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripeInstance.paymentIntents.create({
       amount: result.orderSummary.grandTotal * 100, // aud to cents
       currency: "aud",
+      customer: customerInStripe.id,
+      receipt_email: currUser.email,
+      metadata: {
+        orderId: result.orderId,
+      },
     });
 
     return {
@@ -90,4 +120,17 @@ export const createPaymentIntent = async (currUser, cart) => {
       paymentIntent: paymentIntent,
     };
   });
+};
+
+export const verifyWebhookSignature = (payload, sig) => {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  return stripeInstance.webhooks.constructEvent(payload, sig, secret);
+};
+
+export const handleSuccessfulPayment = async (paymentIntent) => {
+  return Orders.findByIdAndUpdate(
+    paymentIntent.metadata.orderId,
+    { status: "completed", paymentIntentId: paymentIntent.id },
+    { new: true },
+  );
 };

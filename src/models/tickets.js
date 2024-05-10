@@ -1,64 +1,51 @@
-//const { number } = require("joi");
 import mongoose from "mongoose";
-const ticketSchema = new mongoose.Schema({
-    
-    serviceId:{
-        type: Number,
-        required: true,
-    },
-    ticketId:{
-        type: Number,
-        required: true,
-    },
-    cusotmerId:{
-        type: Number,
-        required: true,
-    },
-    dueDate:{
-        type: Number,
-        required: true,
-        
-    },
-    purchaseDate:{
-        type: Number,
-        required: true,
-        
-    },
-    priorityCompletionDate:{
-        type: Number,
-        required: true,
-    },
-    
-    assignedTo:{
-        type: String,
-        required: true,
-    },
-    note:{
-        type: String,
-        required: true,
-    },
-    urgency:{
-        type: String,
-        required: true,
-    },
-    time:{
-        type: Date,
-        required: true,
-    },
-    refundFlag:{
-        type: Number,
-        required: true,
-    },
-    technicianId:{
-        type: Number,
-        required: true,
-    },
-    address:{
-        type: String,
-        required: true
-    }
+import paginate from "mongoose-paginate-v2";
 
-    
-},{timestamps:true});
+const ticketSchema = new mongoose.Schema(
+  {
+    serviceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Services",
+      required: true,
+    },
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    modifiers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ServiceLevelAgreements",
+        default: [],
+      },
+    ],
+    note: {
+      type: String,
+    },
+    urgency: {
+      type: String,
+      enum: ["planned", "low", "medium", "high", "critical"],
+      required: true,
+    },
+    refundFlag: {
+      type: Date,
+    },
+    location: {
+      type: String,
+    },
+    cancelled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true, toJSON: { virtuals: true, getters: true }, toObject: { virtuals: true, getters: true } },
+);
+
+ticketSchema.plugin(paginate);
 
 export default mongoose.model("Tickets", ticketSchema);
