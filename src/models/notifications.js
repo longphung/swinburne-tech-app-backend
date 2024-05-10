@@ -16,6 +16,7 @@ const notificationSchema = new mongoose.Schema({
     notificationType:{
         type: String,
         required: true,
+        enum: ["job_assignment", "upcoming_sla", "missed_sla"],
     },
     seen:{
         type: Boolean,

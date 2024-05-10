@@ -68,4 +68,36 @@ router.delete("/notifications/:id", async (req, res) => {
     }
 });
 
+// Route to get job assignment notifications
+router.get("/notifications/job_assignment", async (req, res) => {
+    try {
+        const notifications = await notificationSchema.find({ notificationType: "job_assignment" });
+        res.status(200).json(notifications);
+    } catch (error) {
+        console.error("Error retrieving job assignment notifications:", error);
+        res.status(500).send("Error retrieving job assignment notifications");
+    }
+});
+
+// Route to get upcoming SLA notifications
+router.get("/notifications/upcoming_sla", async (req, res) => {
+    try {
+        const notifications = await notificationSchema.find({ notificationType: "upcoming_sla" });
+        res.status(200).json(notifications);
+    } catch (error) {
+        console.error("Error retrieving upcoming SLA notifications:", error);
+        res.status(500).send("Error retrieving upcoming SLA notifications");
+    }
+});
+
+// Route to get missed SLA notifications
+router.get("/notifications/missed_sla", async (req, res) => {
+    try {
+        const notifications = await notificationSchema.find({ notificationType: "missed_sla" });
+        res.status(200).json(notifications);
+    } catch (error) {
+        console.error("Error retrieving missed SLA notifications:", error);
+        res.status(500).send("Error retrieving missed SLA notifications");
+    }
+});
 export default router;
