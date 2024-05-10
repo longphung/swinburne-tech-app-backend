@@ -15,7 +15,6 @@ import serviceLevelAgreement from "#routes/service-level-agreement.js";
 import orders from "#routes/orders.js";
 import tickets from "#routes/tickets.js";
 
-
 await initDatabase();
 
 const app = express();
