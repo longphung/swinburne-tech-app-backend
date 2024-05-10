@@ -1,4 +1,4 @@
-import User from "#models/users.js";
+import User, {USERS_ROLE} from "#models/users.js";
 import Users from "#models/users.js";
 import { createIdToken } from "#src/services/auth.js";
 
@@ -13,11 +13,17 @@ import { createIdToken } from "#src/services/auth.js";
  *    q?: string
  * }} pagination Pagination, sorting, and filtering parameters
  */
-export const getUsersList = async (pagination) => {
-  const { _start, _end, _sort, _order, q = "" } = pagination;
+export const getUsersList = async (pagination, currUser) => {
+  const { _start, _end, _sort, _order, q = "", role } = pagination;
   const query = {};
   if (q) {
     query.$text = { $search: q };
+  }
+  if (role) {
+    if (role === USERS_ROLE.TECHNICIAN && !currUser.role.includes(USERS_ROLE.ADMIN)) {
+      throw new Error("Forbidden");
+    }
+    query.role = role;
   }
   const sort = {};
   if (_sort && _order) {

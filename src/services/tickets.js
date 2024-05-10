@@ -79,10 +79,23 @@ export const getTicketsList = async (pagination) => {
 };
 
 export const getTicket = async (query) => {
-  const ticket = await Tickets.findOne(query).populate({
-    path: "customerId",
-    select: "name",
-  });
+  const ticket = await Tickets.findOne(query)
+    .populate({
+      path: "customerId",
+      select: "name _id",
+    })
+    .populate({
+      path: "serviceId",
+      select: "title _id",
+    })
+    .populate({
+      path: "assignedTo",
+      select: "name _id",
+    })
+    .populate({
+      path: "modifiers",
+      select: "type description _id",
+    });
   if (!ticket) {
     throw new Error("Ticket not found");
   }

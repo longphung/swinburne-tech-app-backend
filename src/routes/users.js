@@ -127,6 +127,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
       }),
     // filter
     q: Joi.string().allow("").default(""),
+    role: Joi.string().valid(USERS_ROLE.CUSTOMER, USERS_ROLE.TECHNICIAN, USERS_ROLE.ADMIN),
   });
   const { error } = schema.validate(req.query);
   if (error) {
@@ -135,11 +136,14 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
     });
   }
   try {
-    const users = await getUsersList(req.query);
+    const users = await getUsersList(req.query, req.user);
     // Set x-total-count header
     res.set("x-total-count", users.totalDocs);
     res.send(users.docs);
   } catch (e) {
+    if (e.message === "Forbidden") {
+      return res.status(403).send();
+    }
     logger.error(e.message);
     res.status(500).send("Internal Server Error");
   }
