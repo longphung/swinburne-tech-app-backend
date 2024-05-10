@@ -131,6 +131,7 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
   });
   const { error } = schema.validate(req.query);
   if (error) {
+    logger.error(error.details[0].message);
     return res.status(400).send({
       message: error.details[0].message,
     });
