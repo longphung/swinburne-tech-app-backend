@@ -81,9 +81,9 @@ router.get(
     if (req.user.role.includes(USERS_ROLE.ADMIN)) {
       // Admin can update any ticket
     } else if (req.user.role.includes(USERS_ROLE.TECHNICIAN)) {
-      req.query.assignedTo = req.user._id;
+      req.query.assignedTo = req.user.id;
     } else if (req.user.role.includes(USERS_ROLE.CUSTOMER)) {
-      req.query.customerId = req.user._id;
+      req.query.customerId = req.user.id;
     }
 
     const schema = {
