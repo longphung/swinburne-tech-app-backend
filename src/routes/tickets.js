@@ -231,7 +231,7 @@ router.patch("/:id", passport.authenticate("bearer", { session: false }), async 
       return res.status(400).send(error.message);
     }
     console.error("Error updating ticket:", error);
-    res.status(500).send(error.message);
+    res.status(500).send("Error updating ticket");
   }
 });
 
