@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Tickets from "#models/tickets.js";
-import { USERS_ROLE } from "#models/users.js";
+import Users, { USERS_ROLE } from "#models/users.js";
 
 export const saveCartToTickets = async (currUser, cart) => {
   const tickets = cart.map((item) => ({
@@ -107,20 +107,37 @@ export const updateTicket = async (query, ticketData, currUser) => {
   const technicianFields = ["assignedTo", "status", "note", "urgency", "location"];
   const customerFields = ["note", "location"];
 
-  if (currUser.role.includes(USERS_ROLE.TECHNICIAN)) {
-    const isAllowed = Object.keys(ticketData).every((key) => technicianFields.includes(key));
-    if (!isAllowed) {
-      throw new Error("Forbidden");
+  if (!currUser.role.includes(USERS_ROLE.ADMIN)) {
+    if (currUser.role.includes(USERS_ROLE.TECHNICIAN)) {
+      const isAllowed = Object.keys(ticketData).every((key) => technicianFields.includes(key));
+      if (!isAllowed) {
+        throw new Error("Forbidden");
+      }
+    }
+
+    if (currUser.role.includes(USERS_ROLE.CUSTOMER)) {
+      const isAllowed = Object.keys(ticketData).every((key) => customerFields.includes(key));
+      if (!isAllowed) {
+        throw new Error("Forbidden");
+      }
     }
   }
-
-  if (currUser.role.includes(USERS_ROLE.CUSTOMER)) {
-    const isAllowed = Object.keys(ticketData).every((key) => customerFields.includes(key));
-    if (!isAllowed) {
-      throw new Error("Forbidden");
+  if (ticketData.assignedTo) {
+    const assignedTo = await Users.findOne({ _id: ticketData.assignedTo });
+    if (!assignedTo) {
+      throw new Error("Assigned user not found");
     }
+  } else if (ticketData.assignedTo === null) {
+    throw new Error("Assigned user cannot be null")
   }
-
+  if (ticketData.customerId) {
+    const customerId = await Users.findOne({ _id: ticketData.customerId });
+    if (!customerId) {
+      throw new Error("Customer not found");
+    }
+  } else if (ticketData.customerId === null) {
+    throw new Error("Customer cannot be null")
+  }
   const ticket = await Tickets.findOneAndUpdate(query, ticketData, { new: true });
   if (!ticket) {
     throw new Error("Ticket not found");
