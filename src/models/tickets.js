@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 import paginate from "mongoose-paginate-v2";
 
+export const TICKET_STATUS = {
+  NOT_STARTED: "NOT_STARTED",
+  OPEN: "OPEN",
+  QUERIES_CLIENT: "QUERIES_CLIENT",
+  QUERIES_EXTERNAL: "QUERIES_EXTERNAL",
+  COMPLETE: "COMPLETE",
+};
+
 const ticketSchema = new mongoose.Schema(
   {
     serviceId: {
@@ -41,6 +49,11 @@ const ticketSchema = new mongoose.Schema(
     cancelled: {
       type: Boolean,
       default: false,
+    },
+    status: {
+      type: String,
+      enum: Object.values(TICKET_STATUS),
+      default: TICKET_STATUS.NOT_STARTED,
     },
   },
   { timestamps: true, toJSON: { virtuals: true, getters: true }, toObject: { virtuals: true, getters: true } },

@@ -81,9 +81,9 @@ router.get(
     if (req.user.role.includes(USERS_ROLE.ADMIN)) {
       // Admin can update any ticket
     } else if (req.user.role.includes(USERS_ROLE.TECHNICIAN)) {
-      req.query.assignedTo = req.user._id;
+      req.query.assignedTo = req.user.id;
     } else if (req.user.role.includes(USERS_ROLE.CUSTOMER)) {
-      req.query.customerId = req.user._id;
+      req.query.customerId = req.user.id;
     }
 
     const schema = {
@@ -157,6 +157,9 @@ router.get("/:id", passport.authenticate("bearer", { session: false }), async (r
     const ticket = await getTicket(query);
     res.status(200).json(ticket);
   } catch (error) {
+    if (error.message === "Forbidden") {
+      return res.status(403).send("Forbidden");
+    }
     if (error.message === "Ticket not found") {
       return res.status(404).send("Ticket not found");
     }
@@ -199,7 +202,7 @@ router.get("/:id", passport.authenticate("bearer", { session: false }), async (r
  *       500:
  *         description: Internal Server Error
  */
-router.patch("/tickets/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+router.patch("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
   const query = { _id: req.params.id };
 
   if (req.user.role.includes(USERS_ROLE.ADMIN)) {
@@ -211,11 +214,21 @@ router.patch("/tickets/:id", passport.authenticate("bearer", { session: false })
   }
 
   try {
-    const updatedTicket = await updateTicket(query, req.body);
+    const updatedTicket = await updateTicket(query, req.body, req.user);
     res.status(200).json(updatedTicket);
   } catch (error) {
-    if (error.message === "Ticket not found") {
-      return res.status(404).send("Ticket not found");
+    if (error.message === "Forbidden") {
+      return res.status(403).send(error.message);
+    }
+    if (
+      error.message === "Ticket not found" ||
+      error.message === "Assigned user not found" ||
+      error.message === "Customer not found"
+    ) {
+      return res.status(404).send(error.message);
+    }
+    if (error.message === "Assigned user cannot be null" || error.message === "Customer cannot be null") {
+      return res.status(400).send(error.message);
     }
     console.error("Error updating ticket:", error);
     res.status(500).send("Error updating ticket");
@@ -250,7 +263,7 @@ router.patch("/tickets/:id", passport.authenticate("bearer", { session: false })
  *       500:
  *         description: Internal Server Error
  */
-router.delete("/tickets/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+router.delete("/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
   if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
     return res.status(403).send("Forbidden");
   }
