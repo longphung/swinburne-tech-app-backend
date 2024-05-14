@@ -1,6 +1,6 @@
 {
   "name": "swinburne-tech-app-backend",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Swinburne Technology Application backend",
   "main": "index.js",
   "scripts": {
@@ -31,22 +31,22 @@
   },
   "homepage": "https://github.com/longphung/swinburne-tech-app-backend#readme",
   "dependencies": {
-    "@dotenvx/dotenvx": "^0.37.0",
+    "@dotenvx/dotenvx": "^0.38.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.2.0",
     "helmet": "^7.1.0",
-    "joi": "^17.13.0",
+    "joi": "^17.13.1",
     "jose": "^5.2.4",
-    "mongoose": "^8.3.2",
+    "mongoose": "^8.3.4",
     "mongoose-paginate-v2": "^1.8.0",
     "nodemailer": "^6.9.13",
     "passport": "^0.7.0",
     "passport-custom": "^1.1.1",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
-    "stripe": "^15.4.0",
+    "stripe": "^15.6.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "winston": "^3.13.0",
@@ -56,7 +56,7 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.1.1",
+    "@eslint/js": "^9.2.0",
     "eslint": "^9.1.1",
     "globals": "^15.1.0",
     "nodemon": "^3.1.0",
