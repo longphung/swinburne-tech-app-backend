@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import paginate from "mongoose-paginate-v2";
 
 export const TICKET_STATUS = {
@@ -58,8 +58,27 @@ const ticketSchema = new mongoose.Schema(
       enum: Object.values(TICKET_STATUS),
       default: TICKET_STATUS.NOT_STARTED,
     },
+    cost: {
+      type: Schema.Types.Decimal128,
+      get: function (value) {
+        if (typeof value !== "undefined") {
+          return parseFloat(value.toString());
+        }
+        return value;
+      },
+    },
   },
-  { timestamps: true, toJSON: { virtuals: true, getters: true }, toObject: { virtuals: true, getters: true } },
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      getters: true,
+    },
+    toObject: {
+      virtuals: true,
+      getters: true,
+    },
+  },
 );
 
 ticketSchema.plugin(paginate);

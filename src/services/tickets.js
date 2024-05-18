@@ -8,7 +8,7 @@ export const saveCartToTickets = async (currUser, cart) => {
     customerId: currUser._id,
     assignedTo: null,
     modifiers: item.modifiers?.map((modifier) => new mongoose.Types.ObjectId(modifier.id)),
-    note: item.note,
+    noteCustomer: item.note,
     urgency: "low",
     location: item.location || "",
   }));
