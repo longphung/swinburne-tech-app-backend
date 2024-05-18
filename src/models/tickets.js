@@ -32,7 +32,10 @@ const ticketSchema = new mongoose.Schema(
         default: [],
       },
     ],
-    note: {
+    noteTechnician: {
+      type: String,
+    },
+    noteCustomer: {
       type: String,
     },
     urgency: {
