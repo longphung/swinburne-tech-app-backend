@@ -22,9 +22,7 @@ const port = process.env.PORT || 5000;
 
 app.use(rateLimiter);
 app.use(
-  cors({
-    origin: [process.env.APP_URL, process.env.FRONTEND_URL],
-  }),
+  cors(),
 );
 app.use(
   express.json({

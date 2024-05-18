@@ -1,7 +1,16 @@
 import mongoose from "mongoose";
+import { PDFInvoice } from "@longphung/pdf-invoice";
 
 import Orders from "#models/orders.js";
 import Tickets from "#models/tickets.js";
+
+const COMPANY_INFO = {
+  name: "Techaway",
+  address: "1234 Techaway St, Tech City",
+  phone: "123-456-7890",
+  email: "noreply@techaway.com",
+  taxId: "ABN 123456789",
+};
 
 export const getOrdersList = async (pagination) => {
   const { _start, _end, _sort, _order, customerId } = pagination;
@@ -71,5 +80,78 @@ export const cancelOrder = async (query) => {
       throw new Error("Order not found");
     }
     return order;
+  });
+};
+
+export const createPDFPayload = (order) => {
+  return {
+    company: COMPANY_INFO,
+    customer: {
+      name: order.customerId.name,
+      address: order.customerId.address,
+      phone: order.customerId.phone,
+      email: order.customerId.email,
+    },
+    invoice: {
+      number: order.id,
+      date: order.updatedAt,
+      dueDate: new Date(),
+      status: "Paid",
+      currency: "AU$ ",
+      path: "./logs/invoice.pdf",
+    },
+    items: order.tickets.map((ticket) => ({
+      name: ticket.service,
+      quantity: 1,
+      price: ticket.cost,
+    })),
+    note: {
+      text: order.tickets.reduce((acc, ticket) => {
+        if (!ticket.noteCustomer) return acc;
+        return `${acc}\n${ticket.noteCustomer}`;
+      }, ""),
+    },
+  };
+};
+
+/**
+ * @param {{
+ *   customerId: string,
+ *   _id: string,
+ * }} query
+ * @returns {Promise<string>} Path to the generated PDF
+ */
+export const createPDF = async (query) => {
+  const order = await Orders.findOne(query)
+    .populate({
+      path: "customerId",
+      select: "name address phone email",
+    })
+    .populate({
+      path: "tickets",
+      select: "serviceId cost noteCustomer",
+      populate: {
+        path: "serviceId",
+        select: "title",
+      },
+      transform: (ticket) => ({
+        cost: ticket.cost,
+        service: ticket.serviceId.title,
+        noteCustomer: ticket.noteCustomer,
+      }),
+    });
+  if (!order) {
+    throw new Error("Order not found");
+  }
+  const payload = createPDFPayload(order);
+  const invoice = new PDFInvoice(payload);
+  const { path, stream } = await invoice.create();
+  return new Promise((resolve, reject) => {
+    stream.on("finish", () => {
+      resolve(path);
+    });
+    stream.on("error", (error) => {
+      reject(error);
+    });
   });
 };

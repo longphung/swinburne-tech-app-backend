@@ -132,3 +132,5 @@ dist
 
 .idea
 .vscode
+# temporary files for pdf generation
+temp
