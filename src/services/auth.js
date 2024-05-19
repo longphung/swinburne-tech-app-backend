@@ -287,12 +287,12 @@ export const refreshAccessToken = async (refreshToken) => {
 
 /**
  * Send an email with a link to reset the password
- * @param {string} username
+ * @param {string} email
  */
-export const forgotPassword = async (username) => {
+export const forgotPassword = async (email) => {
   const session = await mongoose.startSession();
   await session.withTransaction(async () => {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (!user) {
       throw new Error("User not found");
     }

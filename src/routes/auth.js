@@ -335,14 +335,17 @@ router.put("/token", async (req, res) => {
  *         description: Internal Server Error
  */
 router.post("/forgot-password", async (req, res) => {
-  const { username } = req.body;
-  if (!username) {
+  const { email } = req.body;
+  if (!email) {
     return res.status(400).send("Username is required");
   }
   try {
-    await forgotPassword(username);
+    await forgotPassword(email);
     return res.status(200).send("Email sent");
   } catch (e) {
+    if (e.message === "User not found") {
+      return res.status(404).send("User not found");
+    }
     logger.error(e.message);
     return res.status(500).send("Internal server error");
   }

@@ -46,7 +46,6 @@ app.get("/healthcheck", (req, res) => {
 });
 app.use(
   "/api-docs",
-
   swaggerUi.serve,
   swaggerUi.setup(swagger, {
     explorer: true,
