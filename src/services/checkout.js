@@ -4,6 +4,8 @@ import { saveCartToTickets } from "#src/services/tickets.js";
 import Stripe from "stripe";
 import Orders from "#models/orders.js";
 import { addStripeCustomerId } from "#src/services/users.js";
+import { createPDF } from "#src/services/orders.js";
+import mailer from "#src/mailer.js";
 
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -132,9 +134,29 @@ export const verifyWebhookSignature = (payload, sig) => {
 };
 
 export const handleSuccessfulPayment = async (paymentIntent) => {
-  return Orders.findByIdAndUpdate(
+  const result = await Orders.findByIdAndUpdate(
     paymentIntent.metadata.orderId,
     { status: "completed", paymentIntentId: paymentIntent.id },
     { new: true },
-  );
+  ).populate({
+    path: "customerId",
+    select: "email",
+  });
+  // TODO: NOT PRODUCTION READY AND TESTED: We don't have a domain deployed to send emails
+  const orderInvoicePath = await createPDF({
+    id: paymentIntent.metadata.orderId,
+  });
+  await mailer.sendMail({
+    from: process.env.SMTP_USER,
+    to: result.customerId.email,
+    subject: "Order Confirmation",
+    html: `<h1>Order Confirmation</h1><p>Your order has been confirmed. Please find your invoice attached.</p>`,
+    attachments: [{
+      filename: "invoice.pdf",
+      path: orderInvoicePath,
+      contentType: "application/pdf",
+    }]
+  })
+  // TODO: NOT PRODUCTION READY AND TESTED: We don't have a domain deployed to send emails
+  return result
 };
