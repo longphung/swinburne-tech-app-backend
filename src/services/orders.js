@@ -118,7 +118,7 @@ export const createPDFPayload = (order) => {
 
 /**
  * @param {{
- *   customerId: string,
+ *   customerId?: string,
  *   _id: string,
  * }} query
  * @returns {Promise<string>} Path to the generated PDF

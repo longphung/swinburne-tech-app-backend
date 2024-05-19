@@ -142,9 +142,9 @@ export const handleSuccessfulPayment = async (paymentIntent) => {
     path: "customerId",
     select: "email",
   });
-  // TODO: NOT PRODUCTION READY AND TESTED: We don't have a domain deployed to send emails
+  // TODO: NOT PRODUCTION TESTED: We don't have a domain deployed to send emails
   const orderInvoicePath = await createPDF({
-    id: paymentIntent.metadata.orderId,
+    _id: paymentIntent.metadata.orderId,
   });
   await mailer.sendMail({
     from: process.env.SMTP_USER,
@@ -157,6 +157,6 @@ export const handleSuccessfulPayment = async (paymentIntent) => {
       contentType: "application/pdf",
     }]
   })
-  // TODO: NOT PRODUCTION READY AND TESTED: We don't have a domain deployed to send emails
+  // TODO: NOT PRODUCTION TESTED: We don't have a domain deployed to send emails
   return result
 };
