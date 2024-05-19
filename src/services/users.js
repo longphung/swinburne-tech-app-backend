@@ -1,6 +1,6 @@
-import User, { USERS_ROLE } from "#models/users.js";
-import Users from "#models/users.js";
-import { createIdToken } from "#src/services/auth.js";
+import User from "#models/users.js";
+import Users, {USERS_ROLE} from "#models/users.js";
+import {createIdToken} from "#src/services/auth.js";
 
 /**
  * Performs pagination, sorting, and filtering on the list of users and returns the result along with the total count in x-total-count header
@@ -98,10 +98,10 @@ export const addStripeCustomerId = async (userId, stripeCustomerId) => {
 
 export const getTechnicianReport = async () => {
   // Returns technicians, assigned tickets, and completed tickets
-  const result = await Users.aggregate()
+  return Users.aggregate()
     .match({
       role: {
-        $elemMatch: { $eq: USERS_ROLE.TECHNICIAN },
+        $elemMatch: {$eq: USERS_ROLE.TECHNICIAN},
       },
     })
     .lookup({
@@ -113,6 +113,9 @@ export const getTechnicianReport = async () => {
     .project({
       password: 0,
     })
+    .addFields({
+      ticketsCount: {$size: "$tickets"},
+    })
     .group({
       _id: "$_id",
       technician: {
@@ -121,18 +124,17 @@ export const getTechnicianReport = async () => {
           name: "$name",
         },
       },
-      tickets: { $push: "$tickets" },
+      tickets: {$push: "$ticketsCount"},
       completedTickets: {
         $sum: {
           $size: {
             $filter: {
               input: "$tickets",
               as: "ticket",
-              cond: { $eq: ["$$ticket.status", "COMPLETE"] },
+              cond: {$eq: ["$$ticket.status", "COMPLETE"]},
             },
           },
         },
       },
     });
-  return result;
 };

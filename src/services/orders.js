@@ -106,10 +106,12 @@ export const createPDFPayload = (order) => {
       price: ticket.cost,
     })),
     note: {
-      text: "This is a system generated invoice. If you have any questions, contact us at sales@techaway.com\n" + order.tickets.reduce((acc, ticket) => {
-        if (!ticket.noteCustomer) return acc;
-        return `${acc}\n${ticket.noteCustomer}`;
-      }, ""),
+      text:
+        "This is a system generated invoice. If you have any questions, contact us at sales@techaway.com\n" +
+        order.tickets.reduce((acc, ticket) => {
+          if (!ticket.noteCustomer) return acc;
+          return `${acc}\n${ticket.noteCustomer}`;
+        }, ""),
     },
   };
 };
@@ -154,4 +156,36 @@ export const createPDF = async (query) => {
       reject(error);
     });
   });
+};
+
+export const getRevenueReport = async () => {
+  // Returns services, and each tickets associated with the service, with the cost of each ticket, and the total cost of the service
+  return (
+    Orders.aggregate()
+      .lookup({
+        from: "tickets",
+        localField: "tickets",
+        foreignField: "_id",
+        as: "tickets",
+      })
+      // only show ticket with cost field
+      .match({
+        "tickets.cost": { $exists: true },
+      })
+      .lookup({
+        from: "services",
+        localField: "tickets.serviceId",
+        foreignField: "_id",
+        as: "services",
+      })
+      .group({
+        _id: "$services.title",
+        total: {
+          $sum: {
+            $sum: "$tickets.cost",
+          },
+        },
+        tickets: { $push: "$tickets" },
+      })
+  );
 };
