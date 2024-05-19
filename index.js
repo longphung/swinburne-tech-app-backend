@@ -14,6 +14,7 @@ import checkout from "#routes/checkout.js";
 import serviceLevelAgreement from "#routes/service-level-agreement.js";
 import orders from "#routes/orders.js";
 import tickets from "#routes/tickets.js";
+import reports from "#routes/reports.js";
 
 await initDatabase();
 
@@ -58,6 +59,7 @@ app.use("/checkout", checkout);
 app.use("/service-level-agreements", serviceLevelAgreement);
 app.use("/orders", orders);
 app.use("/tickets", tickets);
+app.use("/reports", reports);
 
 app.listen(port, () => {
   console.log(`🚀🚀🚀 TechAway Backend app listening on port ${port}! 🚀🚀🚀`);

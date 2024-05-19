@@ -95,3 +95,44 @@ export const addStripeCustomerId = async (userId, stripeCustomerId) => {
   }
   return user;
 };
+
+export const getTechnicianReport = async () => {
+  // Returns technicians, assigned tickets, and completed tickets
+  const result = await Users.aggregate()
+    .match({
+      role: {
+        $elemMatch: { $eq: USERS_ROLE.TECHNICIAN },
+      },
+    })
+    .lookup({
+      from: "tickets",
+      localField: "_id",
+      foreignField: "assignedTo",
+      as: "tickets",
+    })
+    .project({
+      password: 0,
+    })
+    .group({
+      _id: "$_id",
+      technician: {
+        $first: {
+          _id: "$_id",
+          name: "$name",
+        },
+      },
+      tickets: { $push: "$tickets" },
+      completedTickets: {
+        $sum: {
+          $size: {
+            $filter: {
+              input: "$tickets",
+              as: "ticket",
+              cond: { $eq: ["$$ticket.status", "COMPLETE"] },
+            },
+          },
+        },
+      },
+    });
+  return result;
+};
