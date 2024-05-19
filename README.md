@@ -80,4 +80,6 @@ The first time you start the app in local development without an SMTP server, th
 {"level":"info","message":"Test account created pass:","timestamp":"2024-04-15T22:30:51.536Z"}
 {"level":"info","message":👉"<The given password>","timestamp":"2024-04-15T22:30:51.536Z"}
 ```
+### How do I see available endpoints?
 
+The app comes with a Swagger server at the endpoint `/api-docs` that you can visit and quickly have a view of the backend.
