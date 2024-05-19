@@ -57,6 +57,7 @@ export const calculateOrder = async (currUser, ticketsIds) => {
       location: 1,
     })
     .group({
+      // Grouping requires the group by field, but we're not grouping, we're just creating a single document
       _id: null,
       grandTotal: { $sum: "$ticketTotal" },
       tickets: { $push: "$$ROOT" },
@@ -65,6 +66,9 @@ export const calculateOrder = async (currUser, ticketsIds) => {
     customerId: currUser._id,
     tickets: aggregate[0].tickets.map((_id) => _id),
     grandTotal: aggregate[0].grandTotal,
+  });
+  aggregate[0].tickets.forEach(async (ticket) => {
+    await Tickets.findByIdAndUpdate(ticket._id, { cost: ticket.ticketTotal });
   });
   return {
     orderId: order.id,

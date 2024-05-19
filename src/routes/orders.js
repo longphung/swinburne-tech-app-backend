@@ -2,7 +2,7 @@ import express from "express";
 import Joi from "joi";
 import passport from "passport";
 
-import { cancelOrder, getOrder, getOrdersList, updateOrder } from "#src/services/orders.js";
+import { cancelOrder, createPDF, getOrder, getOrdersList, updateOrder } from "#src/services/orders.js";
 import logger from "#src/logger.js";
 import { USERS_ROLE } from "#models/users.js";
 
@@ -230,6 +230,92 @@ router.delete("/:id", passport.authenticate("bearer", { session: false }), async
     }
     logger.error(e.message);
     res.status(500).json({ error: e.message });
+  }
+});
+
+/**
+ * @swagger
+ * /orders/pdf/{id}:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Get PDF invoice of an order
+ *     description: Generate and retrieve a PDF invoice for the specified order
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The order ID
+ *     responses:
+ *       200:
+ *         description: Successful response with PDF data
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   description: PDF data
+ *       400:
+ *         description: Invalid order ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ *       403:
+ *         description: User not authorized to access this order
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ *       404:
+ *         description: Order not found, or not attached to the user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ */
+router.get("/pdf/:id", passport.authenticate("bearer", { session: false }), async (req, res) => {
+  const query = { _id: req.params.id };
+  if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
+    query.customerId = req.user.id;
+  }
+  if (!req.params.id) {
+    return res.status(400).json({ error: "Invalid order id" });
+  }
+  try {
+    const order = await createPDF(query);
+    res.download(order, `invoice-${req.params.id}.pdf`);
+  } catch (error) {
+    if (error.message === "Order not found") {
+      return res.status(404).json({ error: error.message });
+    }
+    console.error(error)
+    logger.error(error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 

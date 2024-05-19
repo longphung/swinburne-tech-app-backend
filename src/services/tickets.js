@@ -8,7 +8,7 @@ export const saveCartToTickets = async (currUser, cart) => {
     customerId: currUser._id,
     assignedTo: null,
     modifiers: item.modifiers?.map((modifier) => new mongoose.Types.ObjectId(modifier.id)),
-    note: item.note,
+    noteCustomer: item.note,
     urgency: "low",
     location: item.location || "",
   }));
@@ -104,8 +104,8 @@ export const getTicket = async (query) => {
 };
 
 export const updateTicket = async (query, ticketData, currUser) => {
-  const technicianFields = ["assignedTo", "status", "note", "urgency", "location"];
-  const customerFields = ["note", "location"];
+  const technicianFields = ["assignedTo", "status", "noteTechnician", "urgency", "location"];
+  const customerFields = ["location", "noteCustomer"];
 
   if (!currUser.role.includes(USERS_ROLE.ADMIN)) {
     if (currUser.role.includes(USERS_ROLE.TECHNICIAN)) {

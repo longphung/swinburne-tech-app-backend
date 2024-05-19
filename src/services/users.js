@@ -1,6 +1,6 @@
-import User, { USERS_ROLE } from "#models/users.js";
-import Users from "#models/users.js";
-import { createIdToken } from "#src/services/auth.js";
+import User from "#models/users.js";
+import Users, {USERS_ROLE} from "#models/users.js";
+import {createIdToken} from "#src/services/auth.js";
 
 /**
  * Performs pagination, sorting, and filtering on the list of users and returns the result along with the total count in x-total-count header
@@ -94,4 +94,47 @@ export const addStripeCustomerId = async (userId, stripeCustomerId) => {
     throw new Error("User not found");
   }
   return user;
+};
+
+export const getTechnicianReport = async () => {
+  // Returns technicians, assigned tickets, and completed tickets
+  return Users.aggregate()
+    .match({
+      role: {
+        $elemMatch: {$eq: USERS_ROLE.TECHNICIAN},
+      },
+    })
+    .lookup({
+      from: "tickets",
+      localField: "_id",
+      foreignField: "assignedTo",
+      as: "tickets",
+    })
+    .project({
+      password: 0,
+    })
+    .addFields({
+      ticketsCount: {$size: "$tickets"},
+    })
+    .group({
+      _id: "$_id",
+      technician: {
+        $first: {
+          _id: "$_id",
+          name: "$name",
+        },
+      },
+      tickets: {$push: "$ticketsCount"},
+      completedTickets: {
+        $sum: {
+          $size: {
+            $filter: {
+              input: "$tickets",
+              as: "ticket",
+              cond: {$eq: ["$$ticket.status", "COMPLETE"]},
+            },
+          },
+        },
+      },
+    });
 };
