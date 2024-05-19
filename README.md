@@ -36,8 +36,8 @@ cp .env.example .env.local
    - `SMTP_USER`: The SMTP username for sending emails
    - `SMTP_PASS`: The SMTP password for sending emails
    - `SECRET_KEY`: The secret key for generating JWT tokens
-   - `APP_URL`: The URL of the backend application
-   - `FRONTEND_URL`: The URL of the frontend application
+   - `APP_URL`: The URL of the backend application. **IMPORTANT**: No trailing slash (e.g., `http://localhost:8000`, not `http://localhost:8000/`)
+   - `FRONTEND_URL`: The URL of the frontend application. **IMPORTANT**: No trailing slash (e.g., `http://localhost:3000`, not `http://localhost:3000/`)
    - `STRIPE_SECRET_KEY`: The secret key for Stripe payment
    - `STRIPE_WEBHOOK_SECRET`: The webhook secret for Stripe payment
 
