@@ -106,7 +106,7 @@ export const createPDFPayload = (order) => {
       price: ticket.cost,
     })),
     note: {
-      text: order.tickets.reduce((acc, ticket) => {
+      text: "This is a system generated invoice. If you have any questions, contact us at sales@techaway.com\n" + order.tickets.reduce((acc, ticket) => {
         if (!ticket.noteCustomer) return acc;
         return `${acc}\n${ticket.noteCustomer}`;
       }, ""),
