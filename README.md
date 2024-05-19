@@ -4,7 +4,7 @@ This is a simple Express application for Techaway
 
 ## Prerequisites
 
-- Node.js: v20.11.0
+- Node.js: >= v18
 - npm: v10
 - MongoDB: v7.0
 
@@ -56,10 +56,17 @@ npm start
 - `src/`: Contains the source code of the application.
   - `models/`: Contains the data models for the application.
   - `routes/`: Contains the routes for the application.
+  - `services/`: Contains the services for the application.
 - `package.json`: Contains the list of project dependencies and scripts.
 - `.env.example`: An example configuration file. You should create your own `.env.local` file based on this example.
 - `.env.local`: The configuration file for local development. This file is not tracked by Git.
 - `.gitignore`: Specifies intentionally untracked files that Git should ignore.
+
+## Deployment requirements
+
+### Stripe Webhook
+
+To deploy the application, you need to set up a Stripe webhook to listen to events from Stripe, since the app relies on Stripe `payment_intent.succeeded` event to update the order status. You can follow the instructions [here](https://docs.stripe.com/webhooks) to set up the webhook for your deployed app.
 
 ## FAQs
 
