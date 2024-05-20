@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/longphung/swinburne-tech-app-backend#readme",
   "dependencies": {
-    "@dotenvx/dotenvx": "^0.38.0",
+    "@dotenvx/dotenvx": "^0.40.0",
     "@longphung/pdf-invoice": "^1.0.10",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
