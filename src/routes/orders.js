@@ -64,9 +64,11 @@ router.get("/", passport.authenticate("bearer", { session: false }), async (req,
     _end: Joi.number().required(),
     _sort: Joi.string(),
     _order: Joi.string(),
+    customerId: Joi.string(),
   });
   const { error } = schema.validate(req.query);
   if (error) {
+    logger.info(error);
     return res.status(400).json({ error: "Invalid body" });
   }
   try {
@@ -313,7 +315,7 @@ router.get("/pdf/:id", passport.authenticate("bearer", { session: false }), asyn
     if (error.message === "Order not found") {
       return res.status(404).json({ error: error.message });
     }
-    console.error(error)
+    console.error(error);
     logger.error(error.message);
     res.status(500).json({ error: error.message });
   }

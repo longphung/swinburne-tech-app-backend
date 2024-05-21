@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import Stripe from "stripe";
+
 import Tickets from "#models/tickets.js";
 import { saveCartToTickets } from "#src/services/tickets.js";
-import Stripe from "stripe";
 import Orders from "#models/orders.js";
 import { addStripeCustomerId } from "#src/services/users.js";
 import { createPDF } from "#src/services/orders.js";
@@ -70,7 +71,7 @@ export const calculateOrder = async (currUser, ticketsIds) => {
     grandTotal: aggregate[0].grandTotal,
   });
   aggregate[0].tickets.forEach(async (ticket) => {
-    await Tickets.findByIdAndUpdate(ticket._id, { cost: ticket.ticketTotal });
+    await Tickets.findByIdAndUpdate(ticket._id, { cost: ticket.ticketTotal, orderId: order.id });
   });
   return {
     orderId: order.id,
