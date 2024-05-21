@@ -178,6 +178,8 @@ export const getRevenueReport = async () => {
         foreignField: "_id",
         as: "services",
       })
+      .unwind("$services")
+      // return unique services
       .group({
         _id: "$services.title",
         total: {
