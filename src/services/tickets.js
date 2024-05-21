@@ -104,7 +104,7 @@ export const getTicket = async (query) => {
 };
 
 export const updateTicket = async (query, ticketData, currUser) => {
-  const technicianFields = ["assignedTo", "status", "noteTechnician", "urgency", "location"];
+  const technicianFields = ["status", "noteTechnician", "urgency", "location"];
   const customerFields = ["location", "noteCustomer"];
 
   if (!currUser.role.includes(USERS_ROLE.ADMIN)) {

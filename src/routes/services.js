@@ -56,7 +56,7 @@ const router = express.Router();
  *         description: Internal Server Error
  */
 router.get("/admin", passport.authenticate("bearer", { session: false }), async (req, res) => {
-  if (!req.user.role.includes(USERS_ROLE.ADMIN)) {
+  if (!req.user.role.includes(USERS_ROLE.ADMIN) && !req.user.role.includes(USERS_ROLE.TECHNICIAN)) {
     return res.status(403).send();
   }
   const schema = Joi.object({

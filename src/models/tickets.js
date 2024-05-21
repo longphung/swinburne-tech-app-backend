@@ -38,6 +38,10 @@ const ticketSchema = new mongoose.Schema(
     noteCustomer: {
       type: String,
     },
+    orderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+    },
     urgency: {
       type: String,
       enum: ["planned", "low", "medium", "high", "critical"],
