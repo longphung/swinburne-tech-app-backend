@@ -70,6 +70,16 @@ To deploy the application, you need to set up a Stripe webhook to listen to even
 
 ## FAQs
 
+### How are orders calculated? 
+
+The formula: `order + order * sla_modifier_1 + order * sla_modifier_2 = final_price`
+
+The current UI can make it a bit confusing but the is the exact formula I'm using in the app. For example: Service is $150, I pick an SLA that has an x2 modifier:
+
+`150 + 150 * 2 = 450`
+
+So price of the ticket is $450.
+
 ### Checking out emails in local development
 
 The first time you start the app in local development without an SMTP server, the app will create an account for you to [Ethereal Email](https://ethereal.email/). You can use the credentials printed in the console to access the Ethereal Email account and view the emails sent by the application. Example Logs:
