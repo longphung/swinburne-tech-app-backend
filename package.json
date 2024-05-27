@@ -1,6 +1,6 @@
 {
   "name": "swinburne-tech-app-backend",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Swinburne Technology Application backend",
   "main": "index.js",
   "scripts": {
