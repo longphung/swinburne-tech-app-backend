@@ -44,11 +44,18 @@ app.use(loggerMiddleware);
 app.get("/healthcheck", (req, res) => {
   return res.status(204).send("Ok");
 });
+app.get('/api-docs/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swagger);
+});
 app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(swagger, {
     explorer: true,
+    swaggerOptions: {
+      url: "/api-docs/swagger.json",
+    },
   }),
 );
 app.use("/auth", auth);

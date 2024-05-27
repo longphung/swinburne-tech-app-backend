@@ -13,6 +13,10 @@ const options = {
       version: packageJson.version,
       summary: packageJson.description,
     },
+    externalDocs: {
+      description: "swagger.json",
+      url: "/swagger.json",
+    },
     components: {
       securitySchemes: {
         bearerAuth: {
